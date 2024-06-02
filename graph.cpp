@@ -1,6 +1,8 @@
 #include <iostream>
 #include "vertex.h"
 #include "Searching/bfs.h"
+#include "Searching/dfs.h"
+#include "Searching/dfs_recursive.h"
 
 int main() {
     Vertex p1;
@@ -13,7 +15,6 @@ int main() {
     p3.val(3);
     p4.val(4);
     p5.val(5);
-    int re = p2.valu();
     p1.add(&p2, 1);
     p2.add(&p4, 3);
     p3.add(&p2, 5);
@@ -21,9 +22,9 @@ int main() {
     p1.add(&p3, 6);
     p5.add(&p2, 3);
     
-    Vertex* r = bfs(&p4, p5.valu());
+    Vertex* r = dfs_recursive(&p3, p5.val()); // substitute with bfs or dfs
     if (r == nullptr) std::cout << "nullptr\n";
-    else std::cout << r->valu() << '\n';
+    else std::cout << r->val() <<" with amount of neighbours being "<<r->len()<< '\n';
     return 0;
 }
 

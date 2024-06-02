@@ -12,7 +12,7 @@ class Vertex {
             value = v;
         }
         
-        int valu() {
+        int val() {
             return value;
         }
 
@@ -22,6 +22,10 @@ class Vertex {
 
         Vertex* adj(int i) {
             return nextVertex[i].first;
+        }
+
+        int weight(int i) {
+            return nextVertex[i].second;
         }
 
         int len() {

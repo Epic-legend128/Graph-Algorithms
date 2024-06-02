@@ -1,14 +1,14 @@
 #include "../vertex.h"
-#include <queue>
+#include <stack>
 #include <unordered_map>
 #include <iostream>
 
-Vertex* bfs(Vertex *head, int key) {
-    std::queue<Vertex*> q;
+Vertex* dfs(Vertex *head, int key) {
+    std::stack<Vertex*> q;
     q.push(head);
     std::unordered_map<Vertex*, bool> visited;
     while (!q.empty()) {
-        Vertex* current = q.front();
+        Vertex* current = q.top();
         if (current->val() == key) return current;
         q.pop();
         if (visited[current]) continue;
