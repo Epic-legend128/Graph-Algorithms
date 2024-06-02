@@ -4,8 +4,11 @@
 #include "Searching/dfs.h"
 #include "Searching/dfs_recursive.h"
 #include "Shortest Path/dijkstra.h"
+#include "Shortest Path/bellman_ford.h"
+#include "Negative Cycle/has_negative_cycle.h"
 
 int main() {
+    std::vector<Vertex*> g;
     Vertex p1;
     Vertex p2;
     Vertex p3;
@@ -22,6 +25,11 @@ int main() {
     p4.add(&p5, 2);
     p1.add(&p3, 3);
     p5.add(&p2, 3);
+    g.push_back(&p1);
+    g.push_back(&p2);
+    g.push_back(&p3);
+    g.push_back(&p4);
+    g.push_back(&p5);
     
     Vertex* r = dfs_recursive(&p3, p5.val()); // substitute with bfs or dfs
     if (r == nullptr) std::cout << "nullptr\n";
@@ -30,6 +38,15 @@ int main() {
     int r2 = dijkstra(&p1, p2.val());
     if (r2 == -1) std::cout << "Not found\n";
     else std::cout << "The shortest path is of weight "<<r2<< '\n';
+
+    int start = 0;
+    std::vector<int> shortest = bellman_ford(g, start);
+    std::cout << "Starting from "<< (start+1) << std::endl;
+    for (int i = 0; i<shortest.size(); i++) {
+        std::cout << "Shortest path for "<<(i+1)<<" is: "<<shortest[i]<<std::endl;
+    }
+    
+    std::cout << "Does the graph have a negative cycle between the nodes that can be accessed from node "<<(start+1)<<"? "<< (has_negative_cycle(g, start) ? "Yes" : "No")<< '\n';
     return 0;
 }
 
