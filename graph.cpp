@@ -5,6 +5,7 @@
 #include "Searching/dfs_recursive.h"
 #include "Shortest Path/dijkstra.h"
 #include "Shortest Path/bellman_ford.h"
+#include "Shortest Path/floyd_warshall.h"
 #include "Negative Cycle/has_negative_cycle.h"
 
 int main() {
@@ -47,6 +48,15 @@ int main() {
     }
     
     std::cout << "Does the graph have a negative cycle between the nodes that can be accessed from node "<<(start+1)<<"? "<< (has_negative_cycle(g, start) ? "Yes" : "No")<< '\n';
+
+
+    std::vector<std::vector<int> > dists;
+    floyd_warshall(g, dists);
+    for (int i = 0; i<g.size(); i++) {
+        for (int j = 0; j<g.size(); j++) {
+            std::cout << "The distance from "<<(i+1)<<" to "<<(j+1)<<" is "<<dists[i][j]<<std::endl;
+        }
+    }
     return 0;
 }
 
