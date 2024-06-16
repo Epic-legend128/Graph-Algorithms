@@ -7,6 +7,7 @@
 #include "Shortest Path/bellman_ford.h"
 #include "Shortest Path/floyd_warshall.h"
 #include "Negative Cycle/has_negative_cycle.h"
+#include "Minimum Spanning Tree/kruskal.h"
 
 int main() {
     std::vector<Vertex*> g;
@@ -57,6 +58,9 @@ int main() {
             std::cout << "The distance from "<<(i+1)<<" to "<<(j+1)<<" is "<<dists[i][j]<<std::endl;
         }
     }
+
+    int cost = kruskal(g);
+    std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
     return 0;
 }
 
