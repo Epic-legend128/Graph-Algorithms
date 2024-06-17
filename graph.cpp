@@ -8,6 +8,7 @@
 #include "Shortest Path/floyd_warshall.h"
 #include "Negative Cycle/has_negative_cycle.h"
 #include "Minimum Spanning Tree/kruskal.h"
+#include "Minimum Spanning Tree/prim.h"
 
 int main() {
     std::vector<Vertex*> g;
@@ -59,7 +60,8 @@ int main() {
         }
     }
 
-    int cost = kruskal(g);
+    // kruskal and prim only work on undirected graphs
+    int cost = kruskal(g); // or use prim(g) instead
     std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
     return 0;
 }
