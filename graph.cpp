@@ -9,6 +9,7 @@
 #include "Negative Cycle/has_negative_cycle.h"
 #include "Minimum Spanning Tree/kruskal.h"
 #include "Minimum Spanning Tree/prim.h"
+#include "Strongest Connected Components/tarjan.h"
 
 int main() {
     std::vector<Vertex*> g;
@@ -63,6 +64,10 @@ int main() {
     // kruskal and prim only work on undirected graphs
     int cost = kruskal(g); // or use prim(g) instead
     std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
+
+    //tarjan's algorithm for SCCs
+    int t = tarjan(g);
+    std::cout << "The amount of strongly connected components in the graph is "<<t<<'\n';
     return 0;
 }
 
@@ -79,4 +84,27 @@ Graph
 4 5 2
 1 3 3
 5 2 3
+
+backup
+p1.add(&p2, 1);
+    p2.add(&p3, 2);
+    p3.add(&p1, 3);
+    p4.add(&p5, 4);
+    p4.add(&p8, 5);
+    p8.add(&p4, 6);
+    p8.add(&p6, 7);
+    p5.add(&p6, 8);
+    p6.add(&p7, 9);
+    p6.add(&p1, 10);
+    p7.add(&p3, 11);
+    p7.add(&p1, 12);
+    p7.add(&p5, 12);
+    g.push_back(&p1);
+    g.push_back(&p2);
+    g.push_back(&p3);
+    g.push_back(&p4);
+    g.push_back(&p5);
+    g.push_back(&p6);
+    g.push_back(&p7);
+    g.push_back(&p8);
 */
