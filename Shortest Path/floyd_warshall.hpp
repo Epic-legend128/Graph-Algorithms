@@ -1,4 +1,4 @@
-#include "../vertex.h"
+#include "../vertex.hpp"
 #include <iostream>
 #include <vector>
 #include <limits>

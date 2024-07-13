@@ -1,15 +1,15 @@
 #include <iostream>
-#include "vertex.h"
-#include "Searching/bfs.h"
-#include "Searching/dfs.h"
-#include "Searching/dfs_recursive.h"
-#include "Shortest Path/dijkstra.h"
-#include "Shortest Path/bellman_ford.h"
-#include "Shortest Path/floyd_warshall.h"
-#include "Negative Cycle/has_negative_cycle.h"
-#include "Minimum Spanning Tree/kruskal.h"
-#include "Minimum Spanning Tree/prim.h"
-#include "Strongest Connected Components/tarjan.h"
+#include "vertex.hpp"
+#include "Searching/bfs.hpp"
+#include "Searching/dfs.hpp"
+#include "Searching/dfs_recursive.hpp"
+#include "Shortest Path/dijkstra.hpp"
+#include "Shortest Path/bellman_ford.hpp"
+#include "Shortest Path/floyd_warshall.hpp"
+#include "Negative Cycle/has_negative_cycle.hpp"
+#include "Minimum Spanning Tree/kruskal.hpp"
+#include "Minimum Spanning Tree/prim.hpp"
+#include "Strongest Connected Components/tarjan.hpp"
 
 int main() {
     std::vector<Vertex*> g;

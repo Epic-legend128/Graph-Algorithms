@@ -1,4 +1,5 @@
-#include "../DSU/dsu.h"
+#include "../vertex.hpp"
+#include "../DSU/dsu.hpp"
 #include <algorithm>
 
 struct edge {

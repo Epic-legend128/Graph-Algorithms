@@ -1,4 +1,4 @@
-#include "../vertex.h"
+#include "../vertex.hpp"
 #include <queue>
 
 int prim(std::vector<Vertex*> g) {

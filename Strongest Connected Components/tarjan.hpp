@@ -1,4 +1,4 @@
-#include "../vertex.h"
+#include "../vertex.hpp"
 #include <vector>
 #include <stack>
 #include <unordered_map>
