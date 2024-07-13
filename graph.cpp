@@ -11,6 +11,7 @@
 #include "Minimum Spanning Tree/prim.hpp"
 #include "Strongest Connected Components/tarjan.hpp"
 #include "Topological Sorting/dfs_topological.hpp"
+#include "Topological Sorting/kahn.hpp"
 
 int main() {
     std::vector<Vertex*> g; // Normal
@@ -97,12 +98,15 @@ int main() {
     std::cout << "The amount of strongly connected components in the graph is "<<t<<'\n';
 
     //topological sorting
-    std::vector<Vertex*> r_topo = dfs_topological(g2);
-    std::cout << "Topological sorting is: ";
-    for (Vertex* v: r_topo) {
-        std::cout << v->val()<<" ";
+    std::vector<Vertex*> r_topo = kahn(g2); // can also substitute with dfs_topological(g2)
+    if (r_topo.size() == 0) std::cout << "There was a cycle\n"; // only for kahn
+    else {
+        std::cout << "Topological sorting is: ";
+        for (Vertex* v: r_topo) {
+            std::cout << v->val()<<" ";
+        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
     return 0;
 }
 
