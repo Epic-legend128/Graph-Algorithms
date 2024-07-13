@@ -10,9 +10,10 @@
 #include "Minimum Spanning Tree/kruskal.hpp"
 #include "Minimum Spanning Tree/prim.hpp"
 #include "Strongest Connected Components/tarjan.hpp"
+#include "Topological Sorting/dfs_topological.hpp"
 
 int main() {
-    std::vector<Vertex*> g;
+    std::vector<Vertex*> g; // Normal
     Vertex p1;
     Vertex p2;
     Vertex p3;
@@ -34,6 +35,31 @@ int main() {
     g.push_back(&p3);
     g.push_back(&p4);
     g.push_back(&p5);
+    std::vector<Vertex*> g2; // DAG
+    Vertex p20;
+    Vertex p21;
+    Vertex p22;
+    Vertex p23;
+    Vertex p24;
+    Vertex p25;
+    p20.val(0);
+    p21.val(1);
+    p22.val(2);
+    p23.val(3);
+    p24.val(4);
+    p25.val(5);
+    p22.add(&p23, 3);
+    p23.add(&p21, 2);
+    p24.add(&p20, 2);
+    p24.add(&p21, 2);
+    p25.add(&p22, 3);
+    p25.add(&p20, 3);
+    g2.push_back(&p20);
+    g2.push_back(&p21);
+    g2.push_back(&p22);
+    g2.push_back(&p23);
+    g2.push_back(&p24);
+    g2.push_back(&p25);
     
     Vertex* r = dfs_recursive(&p3, p5.val()); // substitute with bfs or dfs
     if (r == nullptr) std::cout << "nullptr\n";
@@ -57,7 +83,8 @@ int main() {
     floyd_warshall(g, dists);
     for (int i = 0; i<g.size(); i++) {
         for (int j = 0; j<g.size(); j++) {
-            std::cout << "The distance from "<<(i+1)<<" to "<<(j+1)<<" is "<<dists[i][j]<<std::endl;
+            if (dists[i][j] == std::numeric_limits<int>::max()) std::cout << "No path from "<<(i+1)<<" to "<<(j+1)<< std::endl;
+            else std::cout << "The distance from "<<(i+1)<<" to "<<(j+1)<<" is "<<dists[i][j]<< std::endl;
         }
     }
 
@@ -68,6 +95,14 @@ int main() {
     //tarjan's algorithm for SCCs
     int t = tarjan(g);
     std::cout << "The amount of strongly connected components in the graph is "<<t<<'\n';
+
+    //topological sorting
+    std::vector<Vertex*> r_topo = dfs_topological(g2);
+    std::cout << "Topological sorting is: ";
+    for (Vertex* v: r_topo) {
+        std::cout << v->val()<<" ";
+    }
+    std::cout << "\n";
     return 0;
 }
 
