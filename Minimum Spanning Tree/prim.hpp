@@ -9,13 +9,13 @@ int prim(std::vector<Vertex*> g) {
     pq.emplace(0, g[0]);
     while (visitedAmount < g.size()) {
         Vertex* current = pq.top().second;
-        visited[current->val()-1] = true;
+        visited[current->val()] = true;
         total += pq.top().first;
         visitedAmount++;
         pq.pop();
         int l = current->len();
         for (int i = 0; i<l; i++) {
-            if (!visited[current->adj(i)->val()-1]) pq.emplace(current->weight(i), current->adj(i));
+            if (!visited[current->adj(i)->val()]) pq.emplace(current->weight(i), current->adj(i));
         }
     }
     return total;

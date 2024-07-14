@@ -20,11 +20,11 @@ int main() {
     Vertex p3;
     Vertex p4;
     Vertex p5;
-    p1.val(1);
-    p2.val(2);
-    p3.val(3);
-    p4.val(4);
-    p5.val(5);
+    p1.val(0);
+    p2.val(1);
+    p3.val(2);
+    p4.val(3);
+    p5.val(4);
     p1.add(&p2, 7);
     p2.add(&p4, 3);
     p3.add(&p2, 2);
@@ -90,7 +90,7 @@ int main() {
     }
 
     // kruskal and prim only work on undirected graphs
-    int cost = kruskal(g); // or use prim(g) instead
+    int cost = prim(g); // or use prim(g) instead
     std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
 
     //tarjan's algorithm for SCCs
@@ -126,24 +126,24 @@ Graph
 
 backup
 p1.add(&p2, 1);
-    p2.add(&p3, 2);
-    p3.add(&p1, 3);
-    p4.add(&p5, 4);
-    p4.add(&p8, 5);
-    p8.add(&p4, 6);
-    p8.add(&p6, 7);
-    p5.add(&p6, 8);
-    p6.add(&p7, 9);
-    p6.add(&p1, 10);
-    p7.add(&p3, 11);
-    p7.add(&p1, 12);
-    p7.add(&p5, 12);
-    g.push_back(&p1);
-    g.push_back(&p2);
-    g.push_back(&p3);
-    g.push_back(&p4);
-    g.push_back(&p5);
-    g.push_back(&p6);
-    g.push_back(&p7);
-    g.push_back(&p8);
+p2.add(&p3, 2);
+p3.add(&p1, 3);
+p4.add(&p5, 4);
+p4.add(&p8, 5);
+p8.add(&p4, 6);
+p8.add(&p6, 7);
+p5.add(&p6, 8);
+p6.add(&p7, 9);
+p6.add(&p1, 10);
+p7.add(&p3, 11);
+p7.add(&p1, 12);
+p7.add(&p5, 12);
+g.push_back(&p1);
+g.push_back(&p2);
+g.push_back(&p3);
+g.push_back(&p4);
+g.push_back(&p5);
+g.push_back(&p6);
+g.push_back(&p7);
+g.push_back(&p8);
 */

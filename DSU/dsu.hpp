@@ -8,7 +8,7 @@ class DSU {
             parents.resize(p.size());
             ranks.resize(p.size());
             for (int x: p) {
-                parents[x-1] = x-1;
+                parents[x] = x;
                 ranks[x] = 0;
             }
         }

@@ -15,7 +15,7 @@ std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
             if (total[i] == defaultWeight) continue;
             int l = arr[i]->len();
             for (int j = 0; j<l; j++) {
-                int v = arr[i]->adj(j)->val()-1;
+                int v = arr[i]->adj(j)->val();
                 if (total[i] + arr[i]->weight(j) < total[v]) {
                     changed = true;
                     total[v] = total[i] + arr[i]->weight(j);

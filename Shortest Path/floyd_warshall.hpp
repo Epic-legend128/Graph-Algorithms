@@ -17,7 +17,7 @@ void floyd_warshall(const std::vector<Vertex*>& arr, std::vector<std::vector<int
         dists[i][i] = 0;
         int l = arr[i]->len();
         for (int j = 0; j < l; j++) {
-            int v = arr[i]->adj(j)->val()-1;
+            int v = arr[i]->adj(j)->val();
             if (dists[i][v] > arr[i]->weight(j)) {
                 dists[i][v] = arr[i]->weight(j);
             }

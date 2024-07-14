@@ -17,7 +17,7 @@ class Vertex {
         }
 
         void add(Vertex* n, int w) {
-            nextVertex.push_back(std::make_pair(n, w)); 
+            nextVertex.emplace_back(n, w);
         }
 
         Vertex* adj(int i) {
