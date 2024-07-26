@@ -9,7 +9,7 @@
 #include "Negative Cycle/has_negative_cycle.hpp"
 #include "Minimum Spanning Tree/kruskal.hpp"
 #include "Minimum Spanning Tree/prim.hpp"
-#include "Strongest Connected Components/tarjan.hpp"
+#include "Strongly Connected Components/tarjan.hpp"
 #include "Topological Sorting/dfs_topological.hpp"
 #include "Topological Sorting/kahn.hpp"
 
