@@ -1,8 +1,8 @@
 #include <iostream>
 #include "vertex.hpp"
-#include "Searching/bfs.hpp"
-#include "Searching/dfs.hpp"
-#include "Searching/dfs_recursive.hpp"
+#include "Traversal/bfs.hpp"
+#include "Traversal/dfs.hpp"
+#include "Traversal/dfs_recursive.hpp"
 #include "Shortest Path/dijkstra.hpp"
 #include "Shortest Path/bellman_ford.hpp"
 #include "Shortest Path/floyd_warshall.hpp"
