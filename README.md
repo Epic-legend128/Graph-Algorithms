@@ -300,7 +300,61 @@ Dijkstra does not only find the shortest path from node A to B, but in reality, 
 4. Mark the distance from the source node to this node as it has now been visited and the minimum distance has been found
 5. Add all neighbours of the node to the priority queue together with their distance from the source Node
 6. Repeat steps 3 - 5 until the priority queue is empty or the target node has been reached<br>
+
 Basically, what happens in the above steps is that we add all neighbours of visited nodes to a priority queue together with the required distance to get to them from the source node by cumulating weights from the path required to get there. Then we pick the one with the least total distance and mark it as visited as we know there is no possible way to get back to this node with a lower total path. We then add those neighbours to the priority queue and continue.<br>
+For example, let's say we have the following graph:
+```mermaid
+graph TD;
+A["A, 0"] -->|2| B["B, ∞"]
+A -->|6| C["C, ∞"]
+B -->|4| D["D, ∞"]
+B -->|2| C
+C -->|5| B
+```
+Let's say we are looking for the minimum distance between node A and D. If the source node is A, then we mark it as visited with a distance of 0 and we then push onto the priority queue its neighbours together with the weight required to get to them. The priority queue chooses the path to node B as it has a weight of 2. It is marked as visited with a distance from A of 2.
+```mermaid
+graph TD;
+subgraph visited
+A
+B
+end
+A["A, 0"] ==>|2| B["B, 2"]
+A -->|6| C["C, ∞"]
+B -->|4| D["D, ∞"]
+B -->|2| C
+C -->|5| B
+```
+Then, we check B's neighbours. We push them onto the priority queue. We then access from the priority queue node C, which has a total distance from A being 4. 2 from A to B and 2 from B to C.
+```mermaid
+graph TD;
+subgraph visited
+A
+B
+C
+end
+A["A, 0"] ==>|2| B["B, 2"]
+A -->|6| C["C, 4"]
+B -->|4| D["D, ∞"]
+B ==>|2| C
+C -->|5| B
+```
+Then following the same logic we access the next node on the priority queue which is node D.
+```mermaid
+graph TD;
+subgraph visited
+A
+B
+C
+D
+end
+A["A, 0"] ==>|2| B["B, 2"]
+A -->|6| C["C, 4"]
+B ==>|4| D["D, 6"]
+B ==>|2| C
+C -->|5| B
+```
+And like that, we found our target node, D, which requires a total distance of 6 to get to from node A.<br>
+
 With that logic in mind, we can construct the following code:
 ```c++
 int dijkstra(Vertex *head, int key) {
