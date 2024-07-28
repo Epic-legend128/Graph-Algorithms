@@ -381,9 +381,96 @@ int dijkstra(Vertex *head, int key) {
     return -1;
 }
 ```
-The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$.
+The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$. On the other hand, the space complexity is on average $Θ(V)$, and rarely in the worst case it can be $O(V^2)$.
 
-  ### Bellman-Ford
+### Bellman-Ford
+Bellman-Ford is a pathfinding algorithm which finds the shortest paths from a source node to all other nodes and it works on graphs with negative and non-negative weights. Bellman-Ford fails to work for graphs which include a negative cycle, however, it can detect whether there are any, which is pretty important.<br>
+
+The idea behind the algorithm is quite simple. First, it marks every node as having an infinite distance from the source node. Then it goes through all of the nodes and checks if the distance from the source node plus the weight of an edge with a neighbour is less than the distance that this neighbour has with the source node. It does this V-1 times or until there is no change in the distance of any node. It is guaranteed that after V-1 times the shortest distance will be found between the starting node and all other nodes because the shortest path between any two nodes can have at most n-1 edges, at it can at most pass through every node once. However, in cases where a negative weight cycle is introduced, this reasoning becomes false as it can pass through that cycle an infinite number of times. Therefore, if changes in the distances of nodes keep on appearing even after n-1 repetitions, then that means that a negative cycle exists.<br>
+
+For instance, if we have the following graph and the source node is A:
+```mermaid
+graph TD;
+A["A, 0"] -->|2| B["B, ∞"]
+A -->|6| C["C, ∞"]
+B -->|4| D["D, ∞"]
+B -->|2| C
+C -->|5| B
+```
+Bellman-Ford will loop through all nodes and change the values of their neighbours, in this case:
+```mermaid
+graph TD;
+A["A, 0"] -->|2| B["B, 2"]
+A -->|6| C["C, 6"]
+B -->|4| D["D, ∞"]
+B -->|2| C
+C -->|5| B
+```
+Then it will do it again:
+```mermaid
+graph TD;
+A["A, 0"] -->|2| B["B, 2"]
+A -->|6| C["C, 4"]
+B -->|4| D["D, 6"]
+B -->|2| C
+C -->|5| B
+```
+And it will check again, but this time, there are no changes in the graph which goes to show that the optimal distances have already been found and the algorithm terminates.
+
+With that algorithm in mind, we can create the following code:
+```c++
+std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
+    const int defaultWeight = std::numeric_limits<int>::max();
+    std::vector<int> total(arr.size(), defaultWeight);
+    total[start] = 0;
+    int counter = 0;
+    bool changed = true;
+    while (changed && counter < arr.size()-1) {
+        changed = false;
+        for (int i = 0; i<arr.size(); i++) {
+            if (total[i] == defaultWeight) continue;
+            int l = arr[i]->len();
+            for (int j = 0; j<l; j++) {
+                int v = arr[i]->adj(j)->val();
+                if (total[i] + arr[i]->weight(j) < total[v]) {
+                    changed = true;
+                    total[v] = total[i] + arr[i]->weight(j);
+                }
+            }
+        }
+        counter++;
+    }
+    return total;
+}
+```
+In this case, I ended up using the vector of vertices as it allows me to easily access all of the nodes and their respective neighbours so that I can do the relaxation of edges. The algorithm has a time complexity of $O(E*V)$, where V is the number of vertices and E is the number of edges. Of course this is the case because in a worst case scenario in which every node is connected to every other node, we would have at most V-1 loops where in each loop we would have V-1 edges to go through, which makes a total of (V-1)^2 operations, which is basically equal to O(V^2) in the Big-O notation.<br>
+The time complexity of Bellman-Ford is obviously worse than that of Dijkstra, however, its main strength lies in its ability to detect negative cycles. Using the Bellman-Ford algorithm, you could detect negative cycles by slightly modifying the previous code:
+```c++
+bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
+    const int defaultWeight = std::numeric_limits<int>::max();
+    std::vector<int> total(arr.size(), defaultWeight);
+    total[start] = 0;
+    int counter = 0;
+    bool changed = true;
+    while (changed && counter < arr.size()) {
+        changed = false;
+        for (int i = 0; i<arr.size(); i++) {
+            if (total[i] == defaultWeight) continue;
+            int l = arr[i]->len();
+            for (int j = 0; j<l; j++) {
+                int v = arr[i]->adj(j)->val();
+                if (total[i] + arr[i]->weight(j) < total[v]) {
+                    changed = true;
+                    total[v] = total[i] + arr[i]->weight(j);
+                }
+            }
+        }
+        counter++;
+    }
+    
+    return changed;
+}
+```
 
   ### Floyd-Warshall
   
