@@ -288,9 +288,46 @@ Vertex* dfs_recursive(Vertex *head, int key) {
 }
 ```
 
-  ## Shortest Path
+## Shortest Path
+Shortest path algorithms are used to figure out, as the name suggests, the shortest path between two nodes on a graph. In cases where the weight of all of the edges is the same, a simple BFS would be enough to calculate the shortest path, however, with the addition of weights, such an approach is insufficient.
 
-  ### Dijkstra
+### Dijkstra
+Dijkstra is a pathfinding algorithm which closely resembles BFS, with the greatest change being the use of a heap instead of a queue. In C++, a heap can be used by utilizing `std::priority_queue`. A heap is a binary tree in which every parent node has the minimum/maximum value between their children. There are 2 types of heaps, max-heaps and min-heaps. Max-heaps have parents with maximum value whereas min-heaps have them with minimum value. In the case of Dijkstra, we will be using a min-heap. With heaps, you can access the minimum element of all of the items inserted in constant time. However, the addition of elements to the heap has an asymptotic time notation of $log(N)$, where N is the amount of items added.<br>
+Dijkstra does not only find the shortest path from node A to B, but in reality, it finds the shortest path from a source node to all other nodes in a graph. The way it works is simple. The steps are described below:
+1. Using a hash map or vector mark the source node as having a distance of 0 from the source and all other nodes as having infinite distance(to imply they are unvisited)
+2. Push the source node to the priority queue together with the distance from the source node(0)
+3. Use the priority queue to select the node closest to the source node
+4. Mark the distance from the source node to this node as it has now been visited and the minimum distance has been found
+5. Add all neighbours of the node to the priority queue together with their distance from the source Node
+6. Repeat steps 3 - 5 until the priority queue is empty or the target node has been reached
+Basically, what happens in the above steps is that we add all neighbours of visited nodes to a priority queue together with the required distance to get to them from the source node by cumulating weights from the path required to get there. Then we pick the one with the least total distance and mark it as visited as we know there is no possible way to get back to this node with a lower total path. We then add those neighbours to the priority queue and continue.<br>
+With that logic in mind, we can construct the following code:
+```c++
+int dijkstra(Vertex *head, int key) {
+    std::priority_queue<std::pair<int, Vertex*>, std::vector<std::pair<int, Vertex*> >, std::greater<std::pair<int, Vertex*> > > q;
+    q.push(std::make_pair(0, head));
+    std::unordered_map<Vertex*, int> weights;
+    while (!q.empty()) {
+        Vertex* current = q.top().second;
+        int weight = q.top().first;
+        if (current->val() == key) return weight;
+        q.pop();
+        if (weight < weights[current]) break;
+        weights[current] = weight;
+        int l = current->len();
+        for (int i = 0; i < l; i++) {
+            Vertex* temp = current->adj(i);
+            int w = current->weight(i);
+            if (weights.find(temp) == weights.end() || weight+w < weights[temp]) {
+                weights[temp] = weight+w;
+                q.push(std::make_pair(weight+w, temp));
+            }
+        }
+    }
+    return -1;
+}
+```
+The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$.
 
   ### Bellman-Ford
 
