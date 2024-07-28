@@ -13,7 +13,7 @@ int dijkstra(Vertex *head, int key) {
         int weight = q.top().first;
         if (current->val() == key) return weight;
         q.pop();
-        if (weight < weights[current]) break;
+        if (weight > weights[current]) break;
         weights[current] = weight;
         int l = current->len();
         for (int i = 0; i < l; i++) {
