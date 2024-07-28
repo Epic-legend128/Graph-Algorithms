@@ -9,8 +9,9 @@ std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
     std::vector<int> total(arr.size(), defaultWeight);
     total[start] = 0;
     int counter = 0;
-    while (true && counter < arr.size()-1) {
-        bool changed = false;
+    bool changed = true;
+    while (changed && counter < arr.size()-1) {
+        changed = false;
         for (int i = 0; i<arr.size(); i++) {
             if (total[i] == defaultWeight) continue;
             int l = arr[i]->len();
@@ -22,7 +23,6 @@ std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
                 }
             }
         }
-        if (!changed) break;
         counter++;
     }
     return total;

@@ -9,8 +9,9 @@ bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
     std::vector<int> total(arr.size(), defaultWeight);
     total[start] = 0;
     int counter = 0;
-    while (true && counter < arr.size()-1) {
-        bool changed = false;
+    bool changed = true;
+    while (changed && counter < arr.size()) {
+        changed = false;
         for (int i = 0; i<arr.size(); i++) {
             if (total[i] == defaultWeight) continue;
             int l = arr[i]->len();
@@ -22,22 +23,9 @@ bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
                 }
             }
         }
-        if (!changed) break;
         counter++;
     }
-
-    bool changed = false;
-    for (int i = 0; i<arr.size(); i++) {
-        if (total[i] == defaultWeight) continue;
-        int l = arr[i]->len();
-        for (int j = 0; j<l; j++) {
-            int v = arr[i]->adj(j)->val();
-            if (total[i] + arr[i]->weight(j) < total[v]) {
-                changed = true;
-                total[v] = total[i] + arr[i]->weight(j);
-            }
-        }
-    }
+    
     return changed;
 }
 
