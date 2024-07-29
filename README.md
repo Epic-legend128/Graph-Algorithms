@@ -63,15 +63,16 @@ class Vertex {
 ```
 
 ### Adjacency Matrix
-  An adjacency matrix is basically a 2D board of size VxV where V is the amount of vertices present in the graph. A number is given to each vertex and the place [i][j] in the board symbolises that there is an edge connecting node i and j. In cases where the weight of all edges is constant then a simple 2D boolean board would be enough, however, in cases with varying weights it is necessary to replace booleans with some kind of data structure which holds only 2 values, which in C++ is the `std::pair`, one part of the pair would be a boolean and would decide whether there is a connection between the two nodes and the other value would be the weight. It is also possible to set some default value to the weight such as the max value of an integer with `std::numeric_limits<int>::max()`, therefore avoiding the need for a boolean.<br>
+  An adjacency matrix is basically a 2D board of size VxV where V is the amount of vertices present in the graph. A number is given to each vertex and the place [i][j] in the board symbolises that there is an edge connecting node i and j. In cases where the weight of all edges is constant then a simple 2D boolean board would be enough, however, in cases with varying weights it is necessary to replace booleans with an integer symbolising the weight of the edge, and having some kind of default value to represent an absece of an edge.<br>
 As I am using the vector of vertices, I created a function which converts such a structure to an adjacency matrix.
 ```c++
-std::vector<std::vector<std::pair<bool, int> > > get_adjacency_matrix(std::vector<Vertex*> g) {
-    std::vector<std::pair<bool, int> > temp(g.size(), std::make_pair(false, 0));
-    std::vector<std::vector<std::pair<bool, int> > > r(g.size(), temp);
+std::vector<std::vector<int> > get_adjacency_matrix(std::vector<Vertex*> g) {
+    std::vector<int> temp(g.size(), std::numeric_limits<int>::max());
+    std::vector<std::vector<int> > r(g.size(), temp);
     for (int i = 0; i<g.size(); i++) {
+        r[i][i] = 0;
         for (int j = 0; j<g[i]->len(); j++) {
-            r[i][g[i]->adj(j)->val()] = std::make_pair(true, g[i]->weight(j));
+            r[i][g[i]->adj(j)->val()] = g[i]->weight(j);
         }
     }
     
@@ -472,8 +473,29 @@ bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
 }
 ```
 
-  ### Floyd-Warshall
-  
+### Floyd-Warshall
+Floyd-Warshall algorithm finds the shortest path between all pairs of nodes in a graph and works on both directed and undirected graphs. However, it fails to work when a negative cycle is included within the given graph.<br>
+
+It takes advantage of a concept known as dynamic programming. It works by using an adjacency matrix and storing the distances from node i to node j in each slot. The values are initialised by inputting the edges into the matrix, and if no edge exists between two nodes then the value is set to infinity. That is the initialisation process. The actual algorithm takes into account, that for a shortest path between node i to j, there can be k intermidiate nodes between the path, and it therefore loops over all possible source, target and intermediate nodes and updates the shortest path in the matrix `dists[i][j]`, only if `dists[i][j] > dists[i][k] + dists[k][j]`. After all three nested loops end, the matrix will contain all shortest paths between all pairs of nodes.<br>
+
+The code for such a simple algorithm would just look like this:
+```c++
+std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& dists) {
+    const int defaultMax = std::numeric_limits<int>::max();
+
+    for (int k = 0; k<dists.size(); k++) {
+        for (int i = 0; i<dists.size(); i++) {
+            for (int j = 0; j<dists.size(); j++) {
+                if (dists[i][k] != defaultMax && dists[k][j] != defaultMax && dists[i][j] > dists[i][k] + dists[k][j]) {
+                    dists[i][j] = dists[i][k] + dists[k][j];
+                }
+            }
+        }
+    }
+    return dists;
+}
+```
+The input is just the adjacency matrix, and the rest of the code is composed of 3 nester loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
 
   ## Topological Sorting
 
