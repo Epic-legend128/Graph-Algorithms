@@ -12,6 +12,7 @@
 #include "Strongly Connected Components/tarjan.hpp"
 #include "Topological Sorting/dfs_topological.hpp"
 #include "Topological Sorting/kahn.hpp"
+#include "Transforming Graphs/to_adjacency_matrix.hpp"
 
 int main() {
     std::vector<Vertex*> g; // Normal
@@ -79,9 +80,8 @@ int main() {
     
     std::cout << "Does the graph have a negative cycle between the nodes that can be accessed from node "<<(start+1)<<"? "<< (has_negative_cycle(g, start) ? "Yes" : "No")<< '\n';
 
-
-    std::vector<std::vector<int> > dists;
-    floyd_warshall(g, dists);
+    std::vector<std::vector<int> > matrix = get_adjacency_matrix(g);
+    std::vector<std::vector<int> > dists = floyd_warshall(matrix);
     for (int i = 0; i<g.size(); i++) {
         for (int j = 0; j<g.size(); j++) {
             if (dists[i][j] == std::numeric_limits<int>::max()) std::cout << "No path from "<<(i+1)<<" to "<<(j+1)<< std::endl;

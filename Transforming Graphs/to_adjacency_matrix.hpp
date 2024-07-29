@@ -1,11 +1,13 @@
 #include "../vertex.hpp"
+#include <limits>
 
-std::vector<std::vector<std::pair<bool, int> > > get_adjacency_matrix(std::vector<Vertex*> g) {
-    std::vector<std::pair<bool, int> > temp(g.size(), std::make_pair(false, 0));
-    std::vector<std::vector<std::pair<bool, int> > > r(g.size(), temp);
+std::vector<std::vector<int> > get_adjacency_matrix(std::vector<Vertex*> g) {
+    std::vector<int> temp(g.size(), std::numeric_limits<int>::max());
+    std::vector<std::vector<int> > r(g.size(), temp);
     for (int i = 0; i<g.size(); i++) {
+        r[i][i] = 0;
         for (int j = 0; j<g[i]->len(); j++) {
-            r[i][g[i]->adj(j)->val()] = std::make_pair(true, g[i]->weight(j));
+            r[i][g[i]->adj(j)->val()] = g[i]->weight(j);
         }
     }
     
