@@ -497,12 +497,80 @@ std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& di
 ```
 The input is just the adjacency matrix, and the rest of the code is composed of 3 nester loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
 
-  ## Topological Sorting
+## Topological Sorting
+Topological sorting, is the ordering of the nodes in a graph, such that for every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v. For this to be possible, topological ordering can only be applied to directed acyclic graphs(DAG). Of course, the definition of topological sorting implies that there can be more than just one topological sortings for a given graph, however, returning just one is enough.
 
-  ### Using DFS
+### Using DFS
+One way to accomplish topological sorting is by using DFS. We can create a hash map to keep track of all of the nodes that have been visited. At the start we mark everything as univisted and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens recursively and once a node is done with all of its neighbours it is then pushed into the results list. After all of the vertices have been visited we just reverse the ordering of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
+The code would look like this:
+```c++
+//helper function
+void dfs_topo(Vertex* v, std::stack<Vertex*>& s, std::unordered_map<Vertex*, bool>& visited) {
+    visited[v] = true;
+    int len = v->len();
+    for (int i = 0; i<len; i++) {
+        if (visited.find(v->adj(i)) == visited.end()) {
+            dfs_topo(v->adj(i), s, visited);
+        }
+    }
+    s.push(v);
+}
 
-  ### Kahn's Algorithm
-  
+//main function
+std::vector<Vertex*> dfs_topological(std::vector<Vertex*>& g) {
+    std::stack<Vertex*> s;
+    std::unordered_map<Vertex*, bool> visited;
+    for (int i = 0; i<g.size(); i++) {
+        if (visited.find(g[i]) == visited.end()) {
+            dfs_topo(g[i], s, visited);
+        }
+    }
+    std::vector<Vertex*> r;
+    for (int i = 0; i<g.size(); i++) {
+        r.push_back(s.top());
+        s.pop();
+    }
+    return r;
+}
+```
+The main function is the `dfs_topological` and the helper function is `dfs_topo`. The main function for topological sorting is called with only just one parameter, a vector of vertices. The time complexity is $O(V+E)$, where V is the number of vertices and E is the number of edges, due to the usage of DFS. The space complexity is $O(V)$, as you need to at least have a vector of size V containing the topologically sorted graph.
+
+### Kahn's Algorithm
+Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, it pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that verex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures match, it means that the algorithm was successful and it returns the result.<br>
+The code would therefore be:
+```c++
+std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
+    std::unordered_map<Vertex*, int> in;
+    for (int i = 0; i<g.size(); i++) {
+        int l = g[i]->len();
+        for (int j = 0; j<l; j++) {
+            if (in.find(g[i]->adj(j)) == in.end()) in[g[i]->adj(j)] = 1;
+            else in[g[i]->adj(j)]++;
+        }
+    }
+    
+    std::queue<Vertex*> q;
+    for (int i = 0; i<g.size(); i++) {
+        if (in.find(g[i]) == in.end()) q.push(g[i]);
+    }
+
+    std::vector<Vertex*> r;
+    while (!q.empty()) {
+        Vertex* v = q.front();
+        q.pop();
+        r.push_back(v);
+        int l = v->len();
+        for (int i = 0; i<l; i++) {
+            if ((--in[v->adj(i)]) == 0) q.push(v->adj(i));
+        }
+    }
+    if (r.size() != g.size()) {
+        return {};
+    }
+    return r;
+}
+```
+The function only contains one parameter, `g`, which is the graph represented as a vector of vertices. The code is of time complexity $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because inintallising all the in-degrees of all of the nodes happens in $O(E)$ time, then picking all of the nodes with an in-degree of zero requires $O(V)$ time, then substracting the in-degree of all of the vertices takes again $O(E)$ time and popping all of the items from the queue takes another $O(V)$ time. Checking for if the graph is not a DAG at the end takes constant time, so in total, the time complexity ends up being $O(V+E)$. The space complexity is just $O(V)$ due to the queue, the final result and the map keeping track of the in-degree, all three of which take up $O(V)$ size.
 
   ## Minimum Spanning Tree
 
