@@ -115,9 +115,6 @@ std::vector<edge> get_edge_list(std::vector<Vertex*> g) {
             r.push_back(e);
         }
     }
-    std::sort(r.begin(), r.end(), [](const auto &a, const auto &b) {
-        return a.w < b.w;
-    });
     return r;
 }
 ```
@@ -495,13 +492,13 @@ std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& di
     return dists;
 }
 ```
-The input is just the adjacency matrix, and the rest of the code is composed of 3 nester loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
+The input is just the adjacency matrix, and the rest of the code is composed of 3 nested loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
 
 ## Topological Sorting
 Topological sorting is the ordering of the nodes in a graph, such that for every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v. For this to be possible, topological ordering can only be applied to directed acyclic graphs(DAG). Of course, the definition of topological sorting implies that there can be more than just one topological sorting for a given graph, however, returning just one is enough.
 
 ### Using DFS
-One way to accomplish topological sorting is by using DFS. We can create a hash map to keep track of all of the nodes that have been visited. At the start we mark everything as univisted and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens recursively and once a node is done with all of its neighbours it is then pushed into the results list. After all of the vertices have been visited we just reverse the ordering of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
+One way to accomplish topological sorting is by using DFS. We can create a hash map to keep track of all of the nodes that have been visited. At the start, we mark everything as unvisited and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens recursively and once a node is done with all of its neighbours it is then pushed into the results list. After all of the vertices have been visited we just reverse the ordering of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
 The code would look like this:
 ```c++
 //helper function
@@ -536,7 +533,7 @@ std::vector<Vertex*> dfs_topological(std::vector<Vertex*>& g) {
 The main function is the `dfs_topological` and the helper function is `dfs_topo`. The main function for topological sorting is called with only just one parameter, a vector of vertices. The time complexity is $O(V+E)$, where V is the number of vertices and E is the number of edges, due to the usage of DFS. The space complexity is $O(V)$, as you need to at least have a vector of size V containing the topologically sorted graph.
 
 ### Kahn's Algorithm
-Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, it pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that vertex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures matches, it means that the algorithm was successful and it returns the result.<br>
+Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that vertex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures matches, it means that the algorithm was successful and it returns the result.<br>
 The code would therefore be:
 ```c++
 std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
@@ -573,15 +570,117 @@ std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
 The function only contains one parameter, `g`, which is the graph represented as a vector of vertices. The code is of time complexity $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because initialising all the in-degrees of all of the nodes happens in $O(E)$ time, then picking all of the nodes with an in-degree of zero requires $O(V)$ time, then subtracting the in-degree of all of the vertices takes again $O(E)$ time and popping all of the items from the queue takes another $O(V)$ time. Checking for if the graph is not a DAG at the end takes constant time, so in total, the time complexity ends up being $O(V+E)$. The space complexity is just $O(V)$ due to the queue, the final result and the map keeping track of the in-degree, all three of which take up $O(V)$ size.
 
 ## Minimum Spanning Tree
+A Minimum Spanning Tree(MST) is a subgraph of a weighted undirected graph which connects all vertices without creating any cycles and with the minimum possible total edge weight. A graph can have multiple possible MSTs when not all edge weights are distinct. However, in cases where edge weights are all different then there can only be one unique MST. All MSTs, have a V number of vertices and a V-1 number of edges.
 
 ### Kruskal
+Kruskal finds a minimum spanning tree by picking the lightest edges each time and adding them to the final result making sure that no cycle is created. It continues following these steps until all vertices have been connected. To figure out which edge is the lightest at each step, an edge list is used sorted based on weight in ascending order. However, the biggest problem arises from how to recognise whether or not a cycle will form if an edge is added. One way to check for that is if the added edge connects 2 nodes which are already connected. If it connects them, then a cycle will form, therefore the edge is ignored. To check whether or not 2 nodes are part of the same tree we need to use a Disjoint Set Union.<br>
 
+#### Disjoint Set Union
+A Disjoint Set Union(DSU) works by keeping track of a representative for each separate tree formed. At the start, all nodes are added with themselves being the representatives of their own one-node tree. Then, the DSU contains two methods. union-find. The method `find`, just returns the representative of the given node. It does so recursively, as the representative of its parent node might be a different node. It stops the recursion when the representative of the node is the node itself. However, to keep the `find` method fast, each time the method is called, it does not just return the final representative of the tree but also changes all the representatives along the way to the final representative therefore shortening the path to the tree's representative. This type of find takes advantage of a concept called Path Compression. Therefore, its code would look like this:
+```c++
+int find(int i) {
+    if (parents[i] != i) parents[i] = find(parents[i]);
+    return parents[i];
+}
+```
+The next method is `union`. It has 2 nodes as parameters and its objective is to merge the two different trees in which both nodes are part. To do that it calls the `find` method of both nodes and if they are not part of the same tree then the representative's representative of the first tree is set to be equal to the representative of the second tree. So the code for `union` would be:
+```c++
+void unite(int i, int j) {
+    int first = find(i);
+    int second = find(j);
+    if (i == j) return;
+    parents[first] = second;
+}
+```
+However, just like there was a trick to make `find` faster, there is also a trick to optimize further the `union` method by introducing ranks to each tree. The main problem of `union`, is that it does not necessarily set the optimal representative of the 2 trees as the best representative. It is generally better to change the smallest tree's representative to the bigger tree's representative. So the rank is similar to the depth of each tree, the only difference being that the rank is not affected by the optimisations in height done in the `find` method. The rank of each tree starts at 0. Each time we merge 2 trees with the same rank, we increase the rank of the final tree formed. This type of union is called union by rank and it is much faster than the original one. The code would be:
+```c++
+void unite(int i, int j) {
+    int first = find(i);
+    int second = find(j);
+    if (i == j) return;
+    if (ranks[first] > ranks[second]) {
+        parents[second] = first;
+    }
+    else {
+        parents[first] = second;
+        if (ranks[first] == ranks[second]) {
+            ranks[second]++;
+        }
+    }
+}
+```
+In total, combining the 2 algorithms together along with their optimisations gives us an amortized time complexity of $O(α(n))$, where α(n) is the inverse Ackerman function which for all practical values of n does not grow past 4. This means that the amortized time complexity is basically constant. In the worst-case scenario, the time complexity can become $O(log(n))$, but due to the optimizations made in both functions, this time complexity is rarely realised as each call to the functions optimizes the "environment" for the next call.<br>
+
+The final  code for the DSU class together with the initialisation is:
+```c++
+class DSU {
+    private:
+        std::vector<int> parents;
+        std::vector<int> ranks;
+    public:
+        DSU(std::vector<int>& p) {
+            parents.resize(p.size());
+            ranks.resize(p.size());
+            for (int x: p) {
+                parents[x] = x;
+                ranks[x] = 0;
+            }
+        }
+
+        int find(int i) {
+            if (parents[i] != i) parents[i] = find(parents[i]);
+            return parents[i];
+        }
+
+        void unite(int i, int j) {
+            int first = find(i);
+            int second = find(j);
+            if (i == j) return;
+            if (ranks[first] > ranks[second]) {
+                parents[second] = first;
+            }
+            else {
+                parents[first] = second;
+                if (ranks[first] == ranks[second]) {
+                    ranks[second]++;
+                }
+            }
+        }
+};
+```
+#### Kruskal Code
+Having created the DSU class and having an idea of how Kruskal's algorithm works, we can now write the code for it:
+```c++
+int kruskal(std::vector<edge>& edges) {
+    if (edges.size() == 0) return 0;
+    
+    std::sort(edges.begin(), edges.end(), [](const auto &a, const auto &b) {
+        return a.w < b.w;
+    });
+
+    std::vector<int> f;
+    for (int i = 0; i<edges.size(); i++) {
+        f.push_back(i);
+    }
+    DSU dsu(f);
+    
+    int total = 0;
+    for (edge e: edges) {
+        if (dsu.find(e.a) != dsu.find(e.b)) {
+            dsu.unite(e.a, e.b);
+            total += e.w;
+        }
+    }
+    return total;
+}
+```
+The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph.
 ### Prim
   
 
-  ## Strongly Connected Components
+## Strongly Connected Components
 
-  ### Tarjan's Algorithm
+### Tarjan's Algorithm
 
 
   
