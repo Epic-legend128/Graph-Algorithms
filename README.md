@@ -573,7 +573,7 @@ The function only contains one parameter, `g`, which is the graph represented as
 A Minimum Spanning Tree(MST) is a subgraph of a weighted undirected graph which connects all vertices without creating any cycles and with the minimum possible total edge weight. A graph can have multiple possible MSTs when not all edge weights are distinct. However, in cases where edge weights are all different then there can only be one unique MST. All MSTs, have a V number of vertices and a V-1 number of edges.
 
 ### Kruskal
-Kruskal finds a minimum spanning tree by picking the lightest edges each time and adding them to the final result making sure that no cycle is created. It continues following these steps until all vertices have been connected. To figure out which edge is the lightest at each step, an edge list is used sorted based on weight in ascending order. However, the biggest problem arises from how to recognise whether or not a cycle will form if an edge is added. One way to check for that is if the added edge connects 2 nodes which are already connected. If it connects them, then a cycle will form, therefore the edge is ignored. To check whether or not 2 nodes are part of the same tree we need to use a Disjoint Set Union.<br>
+Kruskal is a greedy algorithm which finds a minimum spanning tree by picking the lightest edges each time and adding them to the final result making sure that no cycle is created. It continues following these steps until all vertices have been connected. To figure out which edge is the lightest at each step, an edge list is used sorted based on weight in ascending order. However, the biggest problem arises from how to recognise whether or not a cycle will form if an edge is added. One way to check for that is if the added edge connects 2 nodes which are already connected. If it connects them, then a cycle will form, therefore the edge is ignored. To check whether or not 2 nodes are part of the same tree we need to use a Disjoint Set Union.<br>
 
 #### Disjoint Set Union
 A Disjoint Set Union(DSU) works by keeping track of a representative for each separate tree formed. At the start, all nodes are added with themselves being the representatives of their own one-node tree. Then, the DSU contains two methods. union-find. The method `find`, just returns the representative of the given node. It does so recursively, as the representative of its parent node might be a different node. It stops the recursion when the representative of the node is the node itself. However, to keep the `find` method fast, each time the method is called, it does not just return the final representative of the tree but also changes all the representatives along the way to the final representative therefore shortening the path to the tree's representative. This type of find takes advantage of a concept called Path Compression. Therefore, its code would look like this:
@@ -674,13 +674,41 @@ int kruskal(std::vector<edge>& edges) {
     return total;
 }
 ```
-The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph.
+The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph. The space complexity is $O(E + V)$ due to the edge list taking up $O(E)$ space and the DSU taking up $O(V) space, where E is the number of edges and V is the number of vertices.
+
 ### Prim
-  
+Prim's algorithm is a greedy algorithm. It starts from a single source node and it repeatedly chooses the next smallest edge from the available edges making sure no cycle is created by eliminating any edges which connect to already visited nodes. This goes on until all vertices have been visited. To check whether a vertex has already been visited you can just use a hash map or a simple vector. For always choosing the minimum weighted edge Prim's algorithm takes advantage of a priority queue just like Dijkstra. Therefore, the code would look like this:
+```c++
+int prim(std::vector<Vertex*> g) {
+    int total = 0;
+    int visitedAmount = 0;
+    std::vector<bool> visited(g.size(), false);
+    std::priority_queue<std::pair<int, Vertex*>, std::vector<std::pair<int, Vertex*> >, std::greater<std::pair<int, Vertex*> > > pq;
+    pq.emplace(0, g[0]);
+    while (visitedAmount < g.size()) {
+        Vertex* current = pq.top().second;
+        visited[current->val()] = true;
+        total += pq.top().first;
+        visitedAmount++;
+        pq.pop();
+        int l = current->len();
+        for (int i = 0; i<l; i++) {
+            if (!visited[current->adj(i)->val()]) pq.emplace(current->weight(i), current->adj(i));
+        }
+    }
+    return total;
+}
+```
+The code above takes as input a vector of vertices representing the graph and returns the size of the minimum spanning tree. The algorithm is very similar to that of [Dijkstra's](#dijkstra) and therefore their complexities are quite similar. If we symbolise the number of vertices with V and the number of edges with E then the space complexity is $O(V+E)$ because it needs $O(V)$ space from keeping track of visited nodes and another $O(E)$ space for the priority queue. Once again, the time complexity is $O((V+E) \times log(V))$, however, it can be improved all the way down to $O(E + V \times log(V))$ using Fibonacci heap and decrease-key operations just like Dijkstra.
 
 ## Strongly Connected Components
 
 ### Tarjan's Algorithm
 
 
-  
+
+
+
+
+
+The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$. On the other hand, the space complexity is on average $Θ(V)$, and rarely in the worst case it can be $O(V^2)$.
