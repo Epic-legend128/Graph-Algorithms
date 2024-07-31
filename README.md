@@ -674,7 +674,7 @@ int kruskal(std::vector<edge>& edges) {
     return total;
 }
 ```
-The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph. The space complexity is $O(E + V)$ due to the edge list taking up $O(E)$ space and the DSU taking up $O(V) space, where E is the number of edges and V is the number of vertices.
+The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph. The space complexity is $O(E + V)$ due to the edge list taking up $O(E)$ space and the DSU taking up $O(V)$ space, where E is the number of edges and V is the number of vertices.
 
 ### Prim
 Prim's algorithm is a greedy algorithm. It starts from a single source node and it repeatedly chooses the next smallest edge from the available edges making sure no cycle is created by eliminating any edges which connect to already visited nodes. This goes on until all vertices have been visited. To check whether a vertex has already been visited you can just use a hash map or a simple vector. For always choosing the minimum weighted edge Prim's algorithm takes advantage of a priority queue just like Dijkstra. Therefore, the code would look like this:
@@ -702,13 +702,62 @@ int prim(std::vector<Vertex*> g) {
 The code above takes as input a vector of vertices representing the graph and returns the size of the minimum spanning tree. The algorithm is very similar to that of [Dijkstra's](#dijkstra) and therefore their complexities are quite similar. If we symbolise the number of vertices with V and the number of edges with E then the space complexity is $O(V+E)$ because it needs $O(V)$ space from keeping track of visited nodes and another $O(E)$ space for the priority queue. Once again, the time complexity is $O((V+E) \times log(V))$, however, it can be improved all the way down to $O(E + V \times log(V))$ using Fibonacci heap and decrease-key operations just like Dijkstra.
 
 ## Strongly Connected Components
+Strongly Connected Components(SCCs) are maximal subgraphs in which all vertices can access all other vertices. SCCs only apply to directed graphs. SCCs are similar to cycles but not the same. A simple DFS would not suffice for this task as it can inform us of which nodes are accessible from a single node but it cannot tell us whether the opposite is also true.
 
 ### Tarjan's Algorithm
+Tarjan's algorithm is capable of figuring out all of the SCCs within a graph. The way it does so is by utilising an altered version of a DFS. The difference is that it keeps a unique ID for each node visited starting from an ID of 0 and going up by one each time a new node is explored. Also, it keeps track of a low-link value for each node which is basically the lowest ID of a node accessible from the current node. This low-link value is initially set to be equal to the ID of the node, but, every time the DFS is done exploring a single neighbour of the node it updates its low-link value to the minimum low-link value between its own and its neighbour's, only if the neighbour was previously unexplored and not part of another SCC. This continues until the low-link value of a node matches its own ID and there are no more neighbours to explore. This means that the current node is part of an SCC and therefore it should note this node and all the nodes accessible from its neighbours which had the same low-link value as part of the same SCC. To keep track of these other neighbours a stack can be used so that every time a DFS is called on a node it is added to the stack. Then on the backtracking of the DFS when we reach a node with equal ID and low-link value we can simply start removing those items from the stack until we reach the current node. The items removed from the stack are all part of the same SCC. Furthermore, this stack is useful as it can be used to determine if another node has already been added to another SCC, because if it is visited and not part of the stack then it goes to show that the specific node is actually already part of an SCC.<br>
 
+This algorithm can be summarised as follows:
+* Mark all nodes as unvisited
+* For each unvisited node perform DFS:
+    - Push node to the stack
+    - Set its ID to the next lowest possible value
+    - Set its low-link value equal to its ID
+    - Loop through each neighbour:
+        * If the neighbour is unvisited call DFS on them
+        * If the neighbour is on the stack then set the current low-link value equal to the minimum low-link value of the neighbour and current node
+    - If the ID is equal to the low-link value then:
+        * Start popping nodes on the stack until you reach the current one
+        * Increase the number of SCCs by one
+* Return the number of SCCs found<br>
 
+With those steps in mind, we can now construct the required code:
+```c++
+oid dfs_t(Vertex* head, std::unordered_map<Vertex*, int>& lows, std::unordered_map<Vertex*, int>& ids, int& amount, std::unordered_map<Vertex*, bool>& onStack, std::stack<Vertex*>& s, int& id) {
+    s.push(head);
+    onStack[head] = true;
+    lows[head] = id;
+    ids[head] = id++;
+    int len = head->len();
+    for (int i = 0; i<len; i++) {
+        Vertex* temp = head->adj(i);
+        if (ids.find(temp) == ids.end()) dfs_t(temp, lows, ids, amount, onStack, s, id);
+        if (onStack[temp] && (lows.find(head) == lows.end() || lows[head] > lows[temp])) lows[head] = lows[temp];
+    }
 
+    if (ids[head] == lows[head]) {
+        for (Vertex* node = s.top(); true; node = s.top()) {
+            s.pop();
+            onStack[node] = false;
+            lows[node] = lows[head];
+            if (node == head) break;
+        }
+        amount++;
+    }
+}
 
-
-
-
-The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$. On the other hand, the space complexity is on average $Θ(V)$, and rarely in the worst case it can be $O(V^2)$.
+int tarjan(std::vector<Vertex*>& g) {
+    int n = g.size();
+    int amount = 0;
+    int id = 0;
+    std::unordered_map<Vertex*, int> ids;
+    std::unordered_map<Vertex*, int> lows;
+    std::unordered_map<Vertex*, bool> onStack;
+    std::stack<Vertex*> s;
+    for (int i = 0; i<n; i++) {
+        if (ids.find(g[i]) == ids.end()) dfs_t(g[i], lows, ids, amount, onStack, s, id);
+    }
+    return amount;
+}
+```
+The `tarjan` function is called with only one argument, the vector of vertices representing the graph, and it returns the number of SCCs found. With some small adjustments, you can have it return the SCCs themselves. The time complexity of this algorithm is equal to that of a DFS so it is just $O(V+E)$ and its space complexity is just $O(V)$ where V is the number of vertices and E is the number of edges.
