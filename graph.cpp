@@ -13,6 +13,7 @@
 #include "Topological Sorting/dfs_topological.hpp"
 #include "Topological Sorting/kahn.hpp"
 #include "Transforming Graphs/to_adjacency_matrix.hpp"
+#include "Transforming Graphs/to_edge_list.hpp"
 
 int main() {
     std::vector<Vertex*> g; // Normal
@@ -90,7 +91,8 @@ int main() {
     }
 
     // kruskal and prim only work on undirected graphs
-    int cost = prim(g); // or use prim(g) instead
+    std::vector<edge> edges = get_edge_list(g);
+    int cost = kruskal(edges); // or use prim(g) instead
     std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
 
     //tarjan's algorithm for SCCs

@@ -1,6 +1,9 @@
 #include "../vertex.hpp"
 #include <algorithm>
 
+#ifndef EDGE
+#define EDGE
+
 struct edge {
     int a, b, w;
 };
@@ -16,8 +19,6 @@ std::vector<edge> get_edge_list(std::vector<Vertex*> g) {
             r.push_back(e);
         }
     }
-    std::sort(r.begin(), r.end(), [](const auto &a, const auto &b) {
-        return a.w < b.w;
-    });
     return r;
 }
+#endif

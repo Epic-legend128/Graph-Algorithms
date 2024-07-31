@@ -3,8 +3,19 @@
 #include "../Transforming Graphs/to_edge_list.hpp"
 #include <algorithm>
 
-int kruskal(std::vector<edge>& edges, DSU dsu) {
+int kruskal(std::vector<edge>& edges) {
     if (edges.size() == 0) return 0;
+    
+    std::sort(edges.begin(), edges.end(), [](const auto &a, const auto &b) {
+        return a.w < b.w;
+    });
+
+    std::vector<int> f;
+    for (int i = 0; i<edges.size(); i++) {
+        f.push_back(i);
+    }
+    DSU dsu(f);
+    
     int total = 0;
     for (edge e: edges) {
         if (dsu.find(e.a) != dsu.find(e.b)) {
@@ -13,16 +24,4 @@ int kruskal(std::vector<edge>& edges, DSU dsu) {
         }
     }
     return total;
-}
-
-int kruskal(std::vector<Vertex*>& g) {
-    std::vector<edge> edges = get_edge_list(g);
-    
-    if (edges.size() == 0) return 0;
-    std::vector<int> f;
-    for (Vertex* x: g) {
-        f.push_back(x->val());
-    }
-    DSU dsu(f);
-    return kruskal(edges, dsu);
 }
