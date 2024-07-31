@@ -127,7 +127,7 @@ With this way of storing, nodes with no edges will be completely ignored, which 
 Graph traversal refers to the process of visiting all nodes in a graph. This process can be carried out for a multitude of reasons, such as searching for a specific node. Two of the most popular techniques in accomplishing this are Breadth-First Search and Depth-First Search.
 
 ### Breadth-First Search
-Breadth-First Search, also known as BFS, is a traversal algorithm. It works by starting its search at a single node, marking it as visited, and then using a queue adds all unvisited neighbours of the node to the queue. Then, the next vertex is taken from the queue and the process repeats until the queue becomes empty. For instance, if we had the following graph:
+Breadth-First Search, also known as BFS, is a traversal algorithm. It works by starting its search at a single node, marking it as visited, and then, using a queue, adds all unvisited neighbours of the node to the queue. Then, the next vertex is taken from the queue and the process repeats until the queue becomes empty. For instance, if we had the following graph:
 ```mermaid
 graph TD;
 A["1"] --> B["2"]
@@ -444,7 +444,7 @@ std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
     return total;
 }
 ```
-In this case, I ended up using the vector of vertices as it allows me to easily access all of the nodes and their respective neighbours so that I can do the relaxation of edges. The algorithm has a time complexity of $O(E*V)$, where V is the number of vertices and E is the number of edges. Of course this is the case because in a worst case scenario in which every node is connected to every other node, we would have at most V-1 loops where in each loop we would have V-1 edges to go through, which makes a total of (V-1)^2 operations, which is basically equal to O(V^2) in the Big-O notation.<br>
+In this case, I ended up using the vector of vertices as it allows me to easily access all of the nodes and their respective neighbours so that I can do the relaxation of edges. The algorithm has a time complexity of $O(E*V)$, where V is the number of vertices and E is the number of edges. Of course, this is the case because in the worst-case scenario in which every node is connected to every other node, we would have at most V-1 loops where in each loop we would have V-1 edges to go through, which makes a total of (V-1)^2 operations, which is basically equal to O(V^2) in the Big-O notation.<br>
 The time complexity of Bellman-Ford is obviously worse than that of Dijkstra, however, its main strength lies in its ability to detect negative cycles. Using the Bellman-Ford algorithm, you could detect negative cycles by slightly modifying the previous code:
 ```c++
 bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
@@ -476,7 +476,7 @@ bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
 ### Floyd-Warshall
 Floyd-Warshall algorithm finds the shortest path between all pairs of nodes in a graph and works on both directed and undirected graphs. However, it fails to work when a negative cycle is included within the given graph.<br>
 
-It takes advantage of a concept known as dynamic programming. It works by using an adjacency matrix and storing the distances from node i to node j in each slot. The values are initialised by inputting the edges into the matrix, and if no edge exists between two nodes then the value is set to infinity. That is the initialisation process. The actual algorithm takes into account, that for a shortest path between node i to j, there can be k intermidiate nodes between the path, and it therefore loops over all possible source, target and intermediate nodes and updates the shortest path in the matrix `dists[i][j]`, only if `dists[i][j] > dists[i][k] + dists[k][j]`. After all three nested loops end, the matrix will contain all shortest paths between all pairs of nodes.<br>
+It takes advantage of a concept known as dynamic programming. It works by using an adjacency matrix and storing the distances from node i to node j in each slot. The values are initialised by inputting the edges into the matrix, and if no edge exists between two nodes then the value is set to infinity. That is the initialisation process. The actual algorithm takes into account, that for the shortest path between node i to j, there can be k intermediate nodes between the path, and it therefore loops over all possible source, target and intermediate nodes and updates the shortest path in the matrix `dists[i][j]`, only if `dists[i][j] > dists[i][k] + dists[k][j]`. After all three nested loops end, the matrix will contain all shortest paths between all pairs of nodes.<br>
 
 The code for such a simple algorithm would just look like this:
 ```c++
@@ -498,7 +498,7 @@ std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& di
 The input is just the adjacency matrix, and the rest of the code is composed of 3 nester loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
 
 ## Topological Sorting
-Topological sorting, is the ordering of the nodes in a graph, such that for every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v. For this to be possible, topological ordering can only be applied to directed acyclic graphs(DAG). Of course, the definition of topological sorting implies that there can be more than just one topological sortings for a given graph, however, returning just one is enough.
+Topological sorting is the ordering of the nodes in a graph, such that for every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v. For this to be possible, topological ordering can only be applied to directed acyclic graphs(DAG). Of course, the definition of topological sorting implies that there can be more than just one topological sorting for a given graph, however, returning just one is enough.
 
 ### Using DFS
 One way to accomplish topological sorting is by using DFS. We can create a hash map to keep track of all of the nodes that have been visited. At the start we mark everything as univisted and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens recursively and once a node is done with all of its neighbours it is then pushed into the results list. After all of the vertices have been visited we just reverse the ordering of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
@@ -536,7 +536,7 @@ std::vector<Vertex*> dfs_topological(std::vector<Vertex*>& g) {
 The main function is the `dfs_topological` and the helper function is `dfs_topo`. The main function for topological sorting is called with only just one parameter, a vector of vertices. The time complexity is $O(V+E)$, where V is the number of vertices and E is the number of edges, due to the usage of DFS. The space complexity is $O(V)$, as you need to at least have a vector of size V containing the topologically sorted graph.
 
 ### Kahn's Algorithm
-Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, it pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that verex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures match, it means that the algorithm was successful and it returns the result.<br>
+Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, it pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that vertex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures matches, it means that the algorithm was successful and it returns the result.<br>
 The code would therefore be:
 ```c++
 std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
@@ -570,13 +570,13 @@ std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
     return r;
 }
 ```
-The function only contains one parameter, `g`, which is the graph represented as a vector of vertices. The code is of time complexity $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because inintallising all the in-degrees of all of the nodes happens in $O(E)$ time, then picking all of the nodes with an in-degree of zero requires $O(V)$ time, then substracting the in-degree of all of the vertices takes again $O(E)$ time and popping all of the items from the queue takes another $O(V)$ time. Checking for if the graph is not a DAG at the end takes constant time, so in total, the time complexity ends up being $O(V+E)$. The space complexity is just $O(V)$ due to the queue, the final result and the map keeping track of the in-degree, all three of which take up $O(V)$ size.
+The function only contains one parameter, `g`, which is the graph represented as a vector of vertices. The code is of time complexity $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because initialising all the in-degrees of all of the nodes happens in $O(E)$ time, then picking all of the nodes with an in-degree of zero requires $O(V)$ time, then subtracting the in-degree of all of the vertices takes again $O(E)$ time and popping all of the items from the queue takes another $O(V)$ time. Checking for if the graph is not a DAG at the end takes constant time, so in total, the time complexity ends up being $O(V+E)$. The space complexity is just $O(V)$ due to the queue, the final result and the map keeping track of the in-degree, all three of which take up $O(V)$ size.
 
-  ## Minimum Spanning Tree
+## Minimum Spanning Tree
 
-  ### Kruskal
+### Kruskal
 
-  ### Prim
+### Prim
   
 
   ## Strongly Connected Components
