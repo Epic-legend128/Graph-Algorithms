@@ -10,7 +10,7 @@ Explanation and implementation of a bunch of different graph-related algorithms.
 * [Traversal](#traversal)
     - [Breadth-Frst Search](#breadth-first-search)
     - [Depth-First Search](#depth-first-search)
-* [Shortest Path](#shortest-path)
+* [Pathfinding](#pathfinding)
     - [Dijkstra](#dijkstra)
     - [Bellman-Ford](#bellman-ford)
     - [Floyd-Warshall](#floyd-warshall)
@@ -25,10 +25,10 @@ Explanation and implementation of a bunch of different graph-related algorithms.
 
 
 ## Graph Representation
-  A graph is a structure made up of vertices and edges. Vertices, also known as nodes, are connected through the edges. There are many ways to represent a graph in programming, and choosing the right one depends on your purpose. In the code of this repository, I will be using a vector composed of the nodes of the graph, where each node will be represented using a custom struct. However, there are also other ways to accomplish the same thing, each with its own advantages and disadvantages.
+A graph is a structure made up of <strong>vertices and edges</strong>. Vertices, also known as nodes, are connected through the edges. There are many ways to represent a graph in programming, and choosing the right one depends on your purpose. In the code of this repository, I will be using a vector composed of the nodes of the graph, where each node will be represented using a class. However, there are also other ways to accomplish the same thing, each with its own advantages and disadvantages.
 
 ### Vector of Vertices
-  A vector of vertices is what I am going to be using throughout this repository. Basically, I created a struct to act as a node which holds its value, a pointer to each neighbouring node as well as the weight of the edge connecting them and a way to add edges from one node to another. The code for the node is the following:
+I am going to be using a <strong>class</strong> to represent a single vertex throughout most of this repository and in some cases put each of the nodes in a vector. Basically, I created a class to act as a node which holds its <strong>value</strong>, a <strong>pointer</strong> to each neighbouring node as well as the <strong>weight</strong> of the edge connecting them and a way to add edges from one node to another. The code for the node is the following:
   
 ```c++
 class Vertex {
@@ -63,7 +63,7 @@ class Vertex {
 ```
 
 ### Adjacency Matrix
-  An adjacency matrix is basically a 2D board of size VxV where V is the amount of vertices present in the graph. A number is given to each vertex and the place [i][j] in the board symbolises that there is an edge connecting node i and j. In cases where the weight of all edges is constant then a simple 2D boolean board would be enough, however, in cases with varying weights it is necessary to replace booleans with an integer symbolising the weight of the edge, and having some kind of default value to represent an absece of an edge.<br>
+An adjacency matrix is basically a <strong>2D board</strong> of size VxV, where V is the number of vertices present in the graph. A number is given to each vertex and the place [i][j] in the board symbolises that there is an edge connecting node i and j. In cases where the weight of all edges is constant then a simple 2D boolean board would be enough, however, in cases with varying weights it is necessary to replace booleans with an integer symbolising the weight of the edge, and having some kind of default value to represent an absence of an edge. For instance, in C++ I just used the `limits` library and used `std::numeric_limits<int>::max()` as a default value which holds the maximum integer value of an int.<br>
 As I am using the vector of vertices, I created a function which converts such a structure to an adjacency matrix.
 ```c++
 std::vector<std::vector<int> > get_adjacency_matrix(std::vector<Vertex*> g) {
@@ -79,10 +79,10 @@ std::vector<std::vector<int> > get_adjacency_matrix(std::vector<Vertex*> g) {
     return r;
 }
 ```
-  While the adjacency matrix produced is much faster than any other structure which could be used as it offers constant look-up time, it lacks in the department of space complexity as it is $O(V^2)$, with V being the number of vertices.
+While the adjacency matrix produced is much faster than any other structure which could be used as it offers constant look-up time, it lacks in the department of space complexity as it is $O(V^2)$, with V being the number of vertices.
   
 ### Adjacency List
-An adjacency list consists of a list of vectors where each ith place in the list represents one vertex. In each slot, there is a vector which holds all of the neighbours by using the `std::pair` and holding the index of the node and the weight required to reach it. To transform from a vector of vertices to an adjacency list you could use the following code:
+An adjacency list consists of a <strong>list of vectors</strong> where each <em>ith</em> place in the list represents one vertex. In each slot, there is a vector which holds all of the neighbours by using the `std::pair` and holding the index of the node and the weight required to reach it. To transform from a vector of vertices to an adjacency list you could use the following code:
 ```c++
 std::vector<std::vector<std::pair<int, int> > > get_adjacency_list(std::vector<Vertex*> g) {
     std::vector<std::vector<std::pair<int, int> > > r;
@@ -95,10 +95,10 @@ std::vector<std::vector<std::pair<int, int> > > get_adjacency_list(std::vector<V
     return r;
 }
 ```
-This method of storing a graph is quite efficient and actually pretty similar to the method used in this repository. Its lookup time is at worse $O(V)$, where V is the number of nodes, however, it is practically less and it is usually much more space-efficient than the adjacency matrix, with space complexity of $O(E)$, where E is the number of edges. Of course, E can be at worse equal to $V^2$, but usually, that is not the case. So even though the adjacency matrix and list may at first glance take up the same amount of space, the fact that the list version uses vectors with adjustable length contributes to an overall decrease in size by increasing some of its time complexity.
+This method of storing a graph is quite efficient and actually pretty similar to just using a vector of vertex objects. Its lookup time is at worse $O(V)$, where V is the number of nodes, however, it is practically less and it is usually much more space-efficient than the adjacency matrix, with space complexity of $O(E)$, where E is the number of edges. Of course, E can be at worse equal to $V^2$, but usually, that is not the case. So even though the adjacency matrix and list may at first glance take up the same amount of space, the fact that the list version uses vectors with adjustable length contributes to an overall decrease in size by increasing some of its time complexity.
 
-  ### Edge List
-Finally, another popular method of storing graphs is the edge list. Basically, with this method you store in a list all of the edges present in the graph without caring about the nodes. Each edge in this list is represented by three values, two of them are the values of the two vertices connected and the final one is the weight of the edge. To accomplish this I just created another custom struct. The code for the conversion between the vector of vertices and the edge list is:
+### Edge List
+Finally, another popular method of storing graphs is the edge list. Basically, with this method you store in a <strong>list all of the edges</strong> present in the graph without caring about the nodes. Each edge in this list is represented by three values, two of them are the values of the two vertices connected and the final one is the weight of the edge. To accomplish this I just created another <strong>custom struct</strong>. The code for the conversion between the vector of vertices and the edge list is:
 ```c++
 struct edge {
     int a, b, w;
@@ -121,10 +121,10 @@ std::vector<edge> get_edge_list(std::vector<Vertex*> g) {
 With this way of storing, nodes with no edges will be completely ignored, which is quite the drawback in certain cases and it even has a space and time complexity of $O(E)$, where E is the number of edges. However, its main strength stems from its easy-to-manipulate order of the edges, making it extremely useful in some cases such as in [Kruskal's Algorithm](#kruskal).
 
 ## Traversal
-Graph traversal refers to the process of visiting all nodes in a graph. This process can be carried out for a multitude of reasons, such as searching for a specific node. Two of the most popular techniques in accomplishing this are Breadth-First Search and Depth-First Search.
+Graph traversal refers to the <strong>process of visiting all nodes in a graph</strong>. This process can be carried out for a multitude of reasons, such as searching for a specific node. Two of the most popular techniques in accomplishing this are Breadth-First Search and Depth-First Search. Traversal algorithms are crucial to graph theory as they are used time and time again to accomplish other much more complex tasks.
 
 ### Breadth-First Search
-Breadth-First Search, also known as BFS, is a traversal algorithm. It works by starting its search at a single node, marking it as visited, and then, using a queue, adds all unvisited neighbours of the node to the queue. Then, the next vertex is taken from the queue and the process repeats until the queue becomes empty. For instance, if we had the following graph:
+Breadth-First Search, also known as BFS, is a traversal algorithm. It works by starting its search at a single node, marking it as visited, and then, using a queue adds all unvisited neighbours of the node to the queue. Then, the next vertex is taken from the <strong>queue</strong> and the process repeats until the queue becomes empty. For instance, if we had the following graph:
 ```mermaid
 graph TD;
 A["1"] --> B["2"]
@@ -132,7 +132,7 @@ A --> C["3"]
 B --> D["4"]
 B --> C
 ```
-If we call BFS on this graph, starting at node 1, then the algorithm will mark node 1 as visited and add node 2 and 3 to its queue.
+If we call BFS on this graph, starting at node 1, then the algorithm will mark node 1 as visited and add nodes 2 and 3 to its queue.
 ```mermaid
 graph TD;
 subgraph visited
@@ -192,7 +192,7 @@ Vertex* bfs(Vertex *head, int key) {
 The above algorithm uses BFS to search for a specific node with a value of `key`. The `head` is just the starting node passed on to it. It returns a pointer to the node if it is found, otherwise, it returns `nullptr`. The time complexity of the algorithm is $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because each vertex is queued and dequeued only once and each edge is checked only once, giving us the above time complexity. When it comes to space complexity, the queue can hold at most V items which means that the space complexity is $O(V)$.
 
 ### Depth-First Search
-Depth-First Search, also known as DFS, is a graph traversal algorithm very similar to BFS. However, instead of utilising a queue for storing the neighbours of the current vertex, it utilises a stack. So if we take the previous example, on the first loop the graph will be the same and on the second loop it will also go down node 2 so the graph will be similar:
+Depth-First Search, also known as DFS, is a graph traversal algorithm very similar to BFS. However, instead of utilising a queue for storing the neighbours of the current vertex, it utilises a <strong>stack.</strong> So if we take the previous example, on the first loop the graph will be the same and on the second loop it will also go down node 2 so the graph will be similar:
 ```mermaid
 graph TD;
 subgraph visited
@@ -224,7 +224,7 @@ A --> C
 B --> D["4"]
 B --> C
 ```
-And finally, node 3 will be checked and the program will be terminated.<br>
+Finally, node 3 will be checked and the program will be terminated.<br>
 Because the only change made is for the queue to be swapped with a stack, we can simply take the previous BFS code and change it up a bit like so:
 ```c++
 Vertex* dfs(Vertex *head, int key) {
@@ -249,7 +249,8 @@ Vertex* dfs(Vertex *head, int key) {
 }
 ```
 Once again, the `key` represents the value that we are looking for and the `head` is the starting node. If the `key` is not found then `nullptr` will be returned. The time and space complexity of this DFS are the same as BFS, so the asymptotic time notation is $O(V+E)$ and the space complexity is $O(V)$, where V is the number of vertices and E is the number of edges. 
-<br>
+
+#### Recursive DFS
 The two programs look almost identical and have the same time and space complexities, so what is the point in using one over the other? It's better to use BFS when the answer you are looking for is closer to the source node, whereas it is more optimal to use DFS when the answer lies somewhere quite far away from the source node. However, even then, most  people would rather go for DFS as its recursive solution is much easier to implement:
 ```c++
 Vertex* dfs_recursive(Vertex *head, int key, std::unordered_map<Vertex*, bool>& visited) {
@@ -286,11 +287,13 @@ Vertex* dfs_recursive(Vertex *head, int key) {
 }
 ```
 
-## Shortest Path
-Shortest path algorithms are used to figure out, as the name suggests, the shortest path between two nodes on a graph. In cases where the weight of all of the edges is the same, a simple BFS would be enough to calculate the shortest path, however, with the addition of weights, such an approach is insufficient.
+## Pathfinding
+Pathfinding algorithms are used to figure out, as the name suggests, the optimal path between two nodes on a graph. In cases where the weight of all of the edges is the same, a simple BFS would be enough to calculate the shortest path, however, with the addition of weights, such an approach is insufficient.<br>
+
+These pathfinding algorithms can be used in real life to calculate the fastest or shortest route between 2 points on a map. However, that is just the most obvious example. They can also be used to calculate optimal choices where each edge leads to a new one and the weight of an edge is some kind of consequence. For instance, each node could represent a state and you want to get from state X to state Y. This could easily translate to finding solutions to a Rubik's cube or even at a Tic-Tac-Toe game where you would want to solve the Rubik's cube or go into a win state respectively. 
 
 ### Dijkstra
-Dijkstra is a pathfinding algorithm which only works on graphs with non-negative weights. It closely resembles BFS, with the greatest change being the use of a heap instead of a queue. In C++, a heap can be used by utilizing `std::priority_queue`. A heap is a binary tree in which every parent node has the minimum/maximum value between their children. There are 2 types of heaps, max-heaps and min-heaps. Max-heaps have parents with maximum value whereas min-heaps have them with minimum value. In the case of Dijkstra, we will be using a min-heap. With heaps, you can access the minimum element of all of the items inserted in constant time. However, the addition of elements to the heap has an asymptotic time notation of $log(N)$, where N is the amount of items added.<br>
+Dijkstra is a pathfinding algorithm which only works on graphs with <strong>non-negative weights</strong>. It closely resembles BFS, with the greatest change being the use of a <strong>priority queue</strong> instead of a queue. In C++, a priority queue(`std::priority_queue`) is implemented using <strong>heaps</strong>. A heap is a binary tree in which every parent node has the minimum/maximum value between their children. There are 2 types of heaps, max-heaps and min-heaps. Max-heaps have parents with maximum value whereas min-heaps have them with minimum value. In the case of Dijkstra, we will be using a min-heap. With heaps, you can access the minimum element of all of the items inserted in constant time. However, the addition of elements to the heap has an asymptotic time notation of $log(N)$, where N is the amount of items added.<br>
 Dijkstra does not only find the shortest path from node A to B, but in reality, it finds the shortest path from a source node to all other nodes in a graph. The way it works is simple. The steps are described below:
 1. Using a hash map or vector mark the source node as having a distance of 0 from the source and all other nodes as having infinite distance(to imply they are unvisited)
 2. Push the source node to the priority queue together with the distance from the source node(0)
@@ -382,9 +385,9 @@ int dijkstra(Vertex *head, int key) {
 The function above returns the total distance required to get from the source node(`head`) to the target with a value of `key`. If it fails to find an answer it simply returns -1. The time complexity of Dijkstra is $O((V+E)log(V))$, where V is the number of vertices and E is the number of edges. The reason behind this time complexity comes from the fact that each vertex will be extracted once from the priority queue, and we will have at most E amount of insertions in the priority queue. And since both of those operations take $O(log(V))$ time, then once multiplied by the number of times they are carried out, you get the above time complexity. That time complexity can be improved down to $O(V + E \times log(V))$ when updating the priority queue instead of adding an edge each time. And it can even be improved further by implementing a Fibonacci heap for the priority queue instead of a binary heap, leading to a $O(E + V \times log(V))$. On the other hand, the space complexity is on average $Θ(V)$, and rarely in the worst case it can be $O(V^2)$.
 
 ### Bellman-Ford
-Bellman-Ford is a pathfinding algorithm which finds the shortest paths from a source node to all other nodes and it works on graphs with negative and non-negative weights. Bellman-Ford fails to work for graphs which include a negative cycle, however, it can detect whether there are any, which is pretty important.<br>
+Bellman-Ford is a pathfinding algorithm which finds the shortest paths from a source node to all other nodes and it works on graphs with <strong>negative and non-negative weights</strong>. Bellman-Ford <strong>fails to work for graphs with negative cycles</strong>, however, it can detect whether there are any, which is pretty important.<br>
 
-The idea behind the algorithm is quite simple. First, it marks every node as having an infinite distance from the source node. Then it goes through all of the nodes and checks if the distance from the source node plus the weight of an edge with a neighbour is less than the distance that this neighbour has with the source node. It does this V-1 times or until there is no change in the distance of any node. It is guaranteed that after V-1 times the shortest distance will be found between the starting node and all other nodes because the shortest path between any two nodes can have at most n-1 edges, at it can at most pass through every node once. However, in cases where a negative weight cycle is introduced, this reasoning becomes false as it can pass through that cycle an infinite number of times. Therefore, if changes in the distances of nodes keep on appearing even after n-1 repetitions, then that means that a negative cycle exists.<br>
+The idea behind the algorithm is quite simple. First, it marks every node as having an <strong>infinite distance</strong> from the source node. Then it goes through all of the nodes and checks if the distance from the source node plus the weight of an edge with a neighbour is less than the distance that this neighbour has with the source node. It does this V-1 times or until there is no change in the distance of any node. It is guaranteed that after V-1 times the shortest distance will be found between the starting node and all other nodes because the shortest path between any two nodes can have at most V-1 edges, at it can at most pass through every node once. However, in cases where a negative weight cycle is introduced, this reasoning becomes false as it can pass through that cycle an infinite number of times. Therefore, if changes in the distances of nodes keep on appearing even after n-1 repetitions, then that means that a negative cycle exists.<br>
 
 For instance, if we have the following graph and the source node is A:
 ```mermaid
@@ -441,7 +444,9 @@ std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
     return total;
 }
 ```
-In this case, I ended up using the vector of vertices as it allows me to easily access all of the nodes and their respective neighbours so that I can do the relaxation of edges. The algorithm has a time complexity of $O(E*V)$, where V is the number of vertices and E is the number of edges. Of course, this is the case because in the worst-case scenario in which every node is connected to every other node, we would have at most V-1 loops where in each loop we would have V-1 edges to go through, which makes a total of (V-1)^2 operations, which is basically equal to O(V^2) in the Big-O notation.<br>
+In this case, I ended up using the vector of vertices as it allows me to easily access all of the nodes and their respective neighbours so that I can do the <strong>relaxation</strong> of edges. The algorithm has a time complexity of $O(E*V)$, where V is the number of vertices and E is the number of edges. Of course, this is the case because in the worst-case scenario in which every node is connected to every other node, we would have at most $V-1$ loops where in each loop we would have $V-1$ edges to go through, which makes a total of $(V-1)^2$ operations, which is basically equal to $O(V^2)$ in the Big-O notation.<br>
+
+#### Negative Cycle Detection
 The time complexity of Bellman-Ford is obviously worse than that of Dijkstra, however, its main strength lies in its ability to detect negative cycles. Using the Bellman-Ford algorithm, you could detect negative cycles by slightly modifying the previous code:
 ```c++
 bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
@@ -471,9 +476,9 @@ bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
 ```
 
 ### Floyd-Warshall
-Floyd-Warshall algorithm finds the shortest path between all pairs of nodes in a graph and works on both directed and undirected graphs. However, it fails to work when a negative cycle is included within the given graph.<br>
+Floyd-Warshall algorithm finds the shortest path between <strong>all pairs of nodes</strong> in a graph and works on both <strong>directed and undirected graphs</strong>. However, it <strong>fails to work when a negative cycle</strong> is included within the given graph.<br>
 
-It takes advantage of a concept known as dynamic programming. It works by using an adjacency matrix and storing the distances from node i to node j in each slot. The values are initialised by inputting the edges into the matrix, and if no edge exists between two nodes then the value is set to infinity. That is the initialisation process. The actual algorithm takes into account, that for the shortest path between node i to j, there can be k intermediate nodes between the path, and it therefore loops over all possible source, target and intermediate nodes and updates the shortest path in the matrix `dists[i][j]`, only if `dists[i][j] > dists[i][k] + dists[k][j]`. After all three nested loops end, the matrix will contain all shortest paths between all pairs of nodes.<br>
+It takes advantage of a concept known as <strong>dynamic programming</strong>. It works by using an <strogn>adjacency matrix</strong> and storing the distances from node i to node j in each slot. The values are initialised by inputting the edges into the matrix, and if no edge exists between two nodes then the value is set to infinity. That is the initialisation process. The actual algorithm takes into account, that for the shortest path between node i to j, there can be k intermediate nodes between the path, and it therefore loops over all possible source, target and intermediate nodes and updates the shortest path in the matrix `dists[i][j]`, only if `dists[i][j] > dists[i][k] + dists[k][j]`. After all three nested loops end, the matrix will contain all shortest paths between all pairs of nodes.<br>
 
 The code for such a simple algorithm would just look like this:
 ```c++
@@ -495,10 +500,12 @@ std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& di
 The input is just the adjacency matrix, and the rest of the code is composed of 3 nested loops, giving us a time complexity of $O(V^3)$, where V is the number of vertices present in the graph. The space complexity is just $O(V^2)$ because we are using an adjacency matrix with dimensions $V \times V$.
 
 ## Topological Sorting
-Topological sorting is the ordering of the nodes in a graph, such that for every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v. For this to be possible, topological ordering can only be applied to directed acyclic graphs(DAG). Of course, the definition of topological sorting implies that there can be more than just one topological sorting for a given graph, however, returning just one is enough.
+Topological sorting is the ordering of the nodes in a graph, such that for <strong>every pair of vertices (u, v), node u comes before v in the list if an edge comes from u to v</strong>. For this to be possible, topological ordering can only be applied to <strong>directed acyclic graphs(DAG)</strong>. Of course, the definition of topological sorting implies that there can be <strong>more than just one</strong> topological sorting for a given graph, however, returning just one is enough.<br>
+
+Topological sorting is usually used as a way to order events, ensuring that something happens before another thing happens if necessary. For instance, it could be used for task scheduling where you need to perform a task before another one and so topological sorting would be able to help you figure out the right order of accomplishing tasks. Other more complicated usages include dependency resolution where dependencies are resolved in the right order. It can even be used in compiler optimizations and many more.
 
 ### Using DFS
-One way to accomplish topological sorting is by using DFS. We can create a hash map to keep track of all of the nodes that have been visited. At the start, we mark everything as unvisited and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens recursively and once a node is done with all of its neighbours it is then pushed into the results list. After all of the vertices have been visited we just reverse the ordering of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
+One way to accomplish topological sorting is by using DFS. We can create a <strong>hash map</strong> to keep track of all of the nodes that have been visited. At the start, we <strong>mark everything as unvisited</strong> and we loop through all of them. Each time we find one that is unvisited, we call a DFS which basically goes through all of the unvisited neighbours of the called node and it calls dfs on them. This happens <strong>recursively</strong> and once a node is done with all of its neighbours it is then <strong>pushed</strong> into the results list. After all of the vertices have been visited we just <strong>reverse the ordering</strong> of the list and the resulting list is our topologically sorted graph. Reversing the list is required because we push the visited nodes after all their neighbours have been explored, which means that the first nodes in the list are those with 0 neighbours.<br>
 The code would look like this:
 ```c++
 //helper function
@@ -533,7 +540,7 @@ std::vector<Vertex*> dfs_topological(std::vector<Vertex*>& g) {
 The main function is the `dfs_topological` and the helper function is `dfs_topo`. The main function for topological sorting is called with only just one parameter, a vector of vertices. The time complexity is $O(V+E)$, where V is the number of vertices and E is the number of edges, due to the usage of DFS. The space complexity is $O(V)$, as you need to at least have a vector of size V containing the topologically sorted graph.
 
 ### Kahn's Algorithm
-Kahn's algorithm is very simple and uses a queue for its solution. First off, it notes the in-degree(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an in-degree of 0. Then it removes from the queue the first element, pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that vertex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures matches, it means that the algorithm was successful and it returns the result.<br>
+Kahn's algorithm is very simple and uses a <strong>queue</strong> for its solution. First off, it notes the <strong>in-degree</strong>(amount of edges pointing to the node) of all of the vertices. Then it pushes to the queue all of the vertices with an <strong>in-degree of 0</strong>. Then it removes from the queue the first element, pushes it to the topologically ordered list and substracts 1 from all of the in-degrees of the neighbours of that vertex. If any of them reach an in-degree of 0 they are also added to the stack. This goes on until the queue becomes empty. If the result is less than the number of nodes provided then that means that the graph given was not a DAG. Otherwise, if the size of the 2 structures matches, it means that the algorithm was successful and it returns the result.<br>
 The code would therefore be:
 ```c++
 std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
@@ -570,20 +577,22 @@ std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
 The function only contains one parameter, `g`, which is the graph represented as a vector of vertices. The code is of time complexity $O(V+E)$, where V is the number of vertices and E is the number of edges. This is because initialising all the in-degrees of all of the nodes happens in $O(E)$ time, then picking all of the nodes with an in-degree of zero requires $O(V)$ time, then subtracting the in-degree of all of the vertices takes again $O(E)$ time and popping all of the items from the queue takes another $O(V)$ time. Checking for if the graph is not a DAG at the end takes constant time, so in total, the time complexity ends up being $O(V+E)$. The space complexity is just $O(V)$ due to the queue, the final result and the map keeping track of the in-degree, all three of which take up $O(V)$ size.
 
 ## Minimum Spanning Tree
-A Minimum Spanning Tree(MST) is a subgraph of a weighted undirected graph which connects all vertices without creating any cycles and with the minimum possible total edge weight. A graph can have multiple possible MSTs when not all edge weights are distinct. However, in cases where edge weights are all different then there can only be one unique MST. All MSTs, have a V number of vertices and a V-1 number of edges.
+A Minimum Spanning Tree(MST) is a <strong>subgraph of a weighted undirected graph which connects all vertices without creating any cycles and with the minimum possible total edge weight</strong>. A graph can have <strong>multiple possible MSTs</strong> when not all edge weights are distinct. However, in cases where edge weights are all different then there can only be one unique MST. All MSTs, have a V number of vertices and a V-1 number of edges.<br>
+
+MST algorithms are used to figure out the lowest-cost connections in water networks and even electrical grids while still keeping everything connected. This can save companies and governements loads of money while still having everything work as planned.
 
 ### Kruskal
-Kruskal is a greedy algorithm which finds a minimum spanning tree by picking the lightest edges each time and adding them to the final result making sure that no cycle is created. It continues following these steps until all vertices have been connected. To figure out which edge is the lightest at each step, an edge list is used sorted based on weight in ascending order. However, the biggest problem arises from how to recognise whether or not a cycle will form if an edge is added. One way to check for that is if the added edge connects 2 nodes which are already connected. If it connects them, then a cycle will form, therefore the edge is ignored. To check whether or not 2 nodes are part of the same tree we need to use a Disjoint Set Union.<br>
+Kruskal is a <strong>greedy algorithm</strong> which finds a minimum spanning tree by picking the <strong>lightest edges</strong> each time and adding them to the final result making sure that <strong>no cycle</strong> is created. It continues following these steps until all vertices have been connected. To figure out which edge is the lightest at each step, an edge list is used sorted based on weight in ascending order. However, the biggest problem arises from how to recognise whether or not a cycle will form if an edge is added. One way to check for that is if the added edge connects 2 nodes which are already connected. If it connects them, then a cycle will form, therefore the edge is ignored. To check whether or not 2 nodes are part of the same tree we need to use a <strong>Disjoint Set Union</strong>.<br>
 
 #### Disjoint Set Union
-A Disjoint Set Union(DSU) works by keeping track of a representative for each separate tree formed. At the start, all nodes are added with themselves being the representatives of their own one-node tree. Then, the DSU contains two methods. union-find. The method `find`, just returns the representative of the given node. It does so recursively, as the representative of its parent node might be a different node. It stops the recursion when the representative of the node is the node itself. However, to keep the `find` method fast, each time the method is called, it does not just return the final representative of the tree but also changes all the representatives along the way to the final representative therefore shortening the path to the tree's representative. This type of find takes advantage of a concept called Path Compression. Therefore, its code would look like this:
+A Disjoint Set Union(DSU) works by keeping track of a <strong>representative</strong> for each separate tree formed. At the start, all nodes are added with themselves being the representatives of their own one-node tree. Then, the DSU contains two methods, <strong>union-find</strong>. The method `find`, just <strong>returns the representative of the given node</strong>. It does so <strong>recursively</strong>, as the representative of its parent node might be a different node. It stops the recursion when the representative of the node is the node itself. However, to keep the `find` method fast, each time the method is called, it does not just return the final representative of the tree but also <strong>changes all the representatives</strong> along the way to the final representative therefore shortening the path to the tree's representative. This type of find takes advantage of a concept called <strong>Path Compression</strong>. Therefore, its code would look like this:
 ```c++
 int find(int i) {
     if (parents[i] != i) parents[i] = find(parents[i]);
     return parents[i];
 }
 ```
-The next method is `union`. It has 2 nodes as parameters and its objective is to merge the two different trees in which both nodes are part. To do that it calls the `find` method of both nodes and if they are not part of the same tree then the representative's representative of the first tree is set to be equal to the representative of the second tree. So the code for `union` would be:
+The next method is `union`. It has 2 nodes as parameters and its objective is to <strong>merge the two different trees</strong> in which both nodes are part. To do that it calls the `find` method of both nodes and if they are not part of the same tree then the representative's representative of the first tree is set to be equal to the representative of the second tree. So the code for `union` would be:
 ```c++
 void unite(int i, int j) {
     int first = find(i);
@@ -592,7 +601,7 @@ void unite(int i, int j) {
     parents[first] = second;
 }
 ```
-However, just like there was a trick to make `find` faster, there is also a trick to optimize further the `union` method by introducing ranks to each tree. The main problem of `union`, is that it does not necessarily set the optimal representative of the 2 trees as the best representative. It is generally better to change the smallest tree's representative to the bigger tree's representative. So the rank is similar to the depth of each tree, the only difference being that the rank is not affected by the optimisations in height done in the `find` method. The rank of each tree starts at 0. Each time we merge 2 trees with the same rank, we increase the rank of the final tree formed. This type of union is called union by rank and it is much faster than the original one. The code would be:
+However, just like there was a trick to make `find` faster, there is also a trick to optimize further the `union` method by introducing <strong>ranks</strong> to each tree. The main problem of `union`, is that it does not necessarily set the optimal representative of the 2 trees as the best representative. It is generally better to change the <strong>smallest tree's representative to the bigger tree's representative</strong>. So the rank is similar to the <strong>depth</strong> of each tree, the only difference being that the rank is not affected by the optimisations in height done in the `find` method. The rank of each tree starts at 0. Each time we merge 2 trees with the same rank, we increase the rank of the final tree formed. This type of union is called <strong>union by rank</strong> and it is much faster than the original one. The code would be:
 ```c++
 void unite(int i, int j) {
     int first = find(i);
@@ -609,7 +618,7 @@ void unite(int i, int j) {
     }
 }
 ```
-In total, combining the 2 algorithms together along with their optimisations gives us an amortized time complexity of $O(α(n))$, where α(n) is the inverse Ackerman function which for all practical values of n does not grow past 4. This means that the amortized time complexity is basically constant. In the worst-case scenario, the time complexity can become $O(log(n))$, but due to the optimizations made in both functions, this time complexity is rarely realised as each call to the functions optimizes the "environment" for the next call.<br>
+In total, combining the 2 algorithms together along with their optimisations gives us an <strong>amortized</strong> time complexity of $O(α(n))$, where α(n) is the inverse Ackerman function which for all practical values of n does not grow past 4. This means that the amortized time complexity is basically constant. In the worst-case scenario, the time complexity can become $O(log(n))$, but due to the optimizations made in both functions, this time complexity is rarely realised as each call to the functions optimizes the "environment" for the next call.<br>
 
 The final  code for the DSU class together with the initialisation is:
 ```c++
@@ -677,7 +686,7 @@ int kruskal(std::vector<edge>& edges) {
 The above code for Kruskal has one parameter, the edge list, and it returns the total edge weight of the minimum spanning tree. The time complexity is $O(E \times log(E))$ from the sorting, $O(E)$ from creating the DSU and $O(E \times α(V))$ from the final creation of the MST. In total, if you add them all up you'll get a time complexity of $O(E \times log(E) + E + E \times α(V)) = O(E \times log(E))$, where E is the number of edges and V is the number of vertices in the graph. The space complexity is $O(E + V)$ due to the edge list taking up $O(E)$ space and the DSU taking up $O(V)$ space, where E is the number of edges and V is the number of vertices.
 
 ### Prim
-Prim's algorithm is a greedy algorithm. It starts from a single source node and it repeatedly chooses the next smallest edge from the available edges making sure no cycle is created by eliminating any edges which connect to already visited nodes. This goes on until all vertices have been visited. To check whether a vertex has already been visited you can just use a hash map or a simple vector. For always choosing the minimum weighted edge Prim's algorithm takes advantage of a priority queue just like Dijkstra. Therefore, the code would look like this:
+Prim's algorithm is a <strong>greedy algorithm</strong>. It starts from a single <strong>source node</strong> and it repeatedly chooses the <strong>next smallest edge</strong> from the available edges making sure no cycle is created by eliminating any edges which connect to already visited nodes. This goes on until all vertices have been visited. To check whether a vertex has already been visited you can just use a hash map or a simple vector. For always choosing the minimum weighted edge Prim's algorithm takes advantage of a <strong>priority queue</strong> just like Dijkstra. Therefore, the code would look like this:
 ```c++
 int prim(std::vector<Vertex*> g) {
     int total = 0;
@@ -702,10 +711,12 @@ int prim(std::vector<Vertex*> g) {
 The code above takes as input a vector of vertices representing the graph and returns the size of the minimum spanning tree. The algorithm is very similar to that of [Dijkstra's](#dijkstra) and therefore their complexities are quite similar. If we symbolise the number of vertices with V and the number of edges with E then the space complexity is $O(V+E)$ because it needs $O(V)$ space from keeping track of visited nodes and another $O(E)$ space for the priority queue. Once again, the time complexity is $O((V+E) \times log(V))$, however, it can be improved all the way down to $O(E + V \times log(V))$ using Fibonacci heap and decrease-key operations just like Dijkstra.
 
 ## Strongly Connected Components
-Strongly Connected Components(SCCs) are maximal subgraphs in which all vertices can access all other vertices. SCCs only apply to directed graphs. SCCs are similar to cycles but not the same. A simple DFS would not suffice for this task as it can inform us of which nodes are accessible from a single node but it cannot tell us whether the opposite is also true.
+Strongly Connected Components(SCCs) are <strong>maximal subgraphs in which all vertices can access all other vertices</strong>. SCCs only apply to <strong>directed graphs</strong>. SCCs are similar to cycles but not the same. A simple DFS would not suffice for this task as it can inform us of which nodes are accessible from a single node but it cannot tell us whether the opposite is also true.<br>
+
+SCCs can be used to figure out close friends on social media by looking at all of their contacts or even looking at a group of people and figuring out a common link between all of them which could help in advertising to a specific target audience. Another practical use is to ensure that a road network is strongly connected because if it was not then it would be possible for someone to get stuck in a particular place in the graph as there would be a way in but no way out.
 
 ### Tarjan's Algorithm
-Tarjan's algorithm is capable of figuring out all of the SCCs within a graph. The way it does so is by utilising an altered version of a DFS. The difference is that it keeps a unique ID for each node visited starting from an ID of 0 and going up by one each time a new node is explored. Also, it keeps track of a low-link value for each node which is basically the lowest ID of a node accessible from the current node. This low-link value is initially set to be equal to the ID of the node, but, every time the DFS is done exploring a single neighbour of the node it updates its low-link value to the minimum low-link value between its own and its neighbour's, only if the neighbour was previously unexplored and not part of another SCC. This continues until the low-link value of a node matches its own ID and there are no more neighbours to explore. This means that the current node is part of an SCC and therefore it should note this node and all the nodes accessible from its neighbours which had the same low-link value as part of the same SCC. To keep track of these other neighbours a stack can be used so that every time a DFS is called on a node it is added to the stack. Then on the backtracking of the DFS when we reach a node with equal ID and low-link value we can simply start removing those items from the stack until we reach the current node. The items removed from the stack are all part of the same SCC. Furthermore, this stack is useful as it can be used to determine if another node has already been added to another SCC, because if it is visited and not part of the stack then it goes to show that the specific node is actually already part of an SCC.<br>
+Tarjan's algorithm is capable of figuring out all of the SCCs within a graph. The way it does so is by utilising an <strong>altered version of a DFS</strong>. The difference is that it keeps a <strong>unique ID</strong> for each node visited starting from an ID of 0 and going up by one each time a new node is explored. Also, it keeps track of a <strong>low-link value</strong> for each node which is basically the <strong>lowest ID of a node accessible</strong> from the current node. This low-link value is initially set to be equal to the ID of the node, but, every time the DFS is done exploring a single neighbour of the node it updates its low-link value to the <strong>minimum low-link value between its own and its neighbour's</strong>, only if the neighbour was <strong>previously unexplored</strong> and <strong>not part of another SCC</strong>. This continues until the low-link value of a node matches its own ID and there are no more neighbours to explore. This means that the current node is part of an SCC and therefore it should note this node and all the nodes accessible from its neighbours which had the same low-link value as part of the same SCC. To keep track of these other neighbours a <strong>stack</strong> can be used so that every time a DFS is called on a node it is added to the stack. Then on the backtracking of the DFS when we reach a node with equal ID and low-link value we can simply start removing those items from the stack until we reach the current node. The items removed from the stack are all part of the same SCC. Furthermore, this stack is useful as it can be used to determine if another node has already been added to another SCC, because if it is visited and not part of the stack then it goes to show that the specific node is actually already part of an SCC.<br>
 
 This algorithm can be summarised as follows:
 * Mark all nodes as unvisited
@@ -723,7 +734,7 @@ This algorithm can be summarised as follows:
 
 With those steps in mind, we can now construct the required code:
 ```c++
-oid dfs_t(Vertex* head, std::unordered_map<Vertex*, int>& lows, std::unordered_map<Vertex*, int>& ids, int& amount, std::unordered_map<Vertex*, bool>& onStack, std::stack<Vertex*>& s, int& id) {
+void dfs_t(Vertex* head, std::unordered_map<Vertex*, int>& lows, std::unordered_map<Vertex*, int>& ids, int& amount, std::unordered_map<Vertex*, bool>& onStack, std::stack<Vertex*>& s, int& id) {
     s.push(head);
     onStack[head] = true;
     lows[head] = id;
