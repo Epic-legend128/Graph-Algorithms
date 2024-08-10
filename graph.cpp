@@ -63,6 +63,34 @@ int main() {
     g2.push_back(&p23);
     g2.push_back(&p24);
     g2.push_back(&p25);
+    std::vector<Vertex*> g3; // Undirected
+    Vertex p31;
+    Vertex p32;
+    Vertex p33;
+    Vertex p34;
+    Vertex p35;
+    p31.val(0);
+    p32.val(1);
+    p33.val(2);
+    p34.val(3);
+    p35.val(4);
+    p31.add(&p32, 7);
+    p32.add(&p31, 7);
+    p32.add(&p34, 3);
+    p34.add(&p32, 3);
+    p33.add(&p32, 2);
+    p32.add(&p33, 2);
+    p34.add(&p35, 2);
+    p35.add(&p34, 2);
+    p31.add(&p33, 3);
+    p33.add(&p31, 3);
+    p35.add(&p32, 3);
+    p32.add(&p35, 3);
+    g3.push_back(&p31);
+    g3.push_back(&p32);
+    g3.push_back(&p33);
+    g3.push_back(&p34);
+    g3.push_back(&p35);
     
     Vertex* r = dfs_recursive(&p3, p5.val()); // substitute with bfs or dfs
     if (r == nullptr) std::cout << "nullptr\n";
@@ -91,8 +119,8 @@ int main() {
     }
 
     // kruskal and prim only work on undirected graphs
-    std::vector<edge> edges = get_edge_list(g);
-    int cost = kruskal(edges); // or use prim(g) instead
+    std::vector<edge> edges = get_edge_list(g3);
+    int cost = kruskal(edges); // or use prim(g3) instead
     std::cout << "Minimum Spanning Tree Cost: "<<cost<<'\n';
 
     //tarjan's algorithm for SCCs
