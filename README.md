@@ -377,6 +377,7 @@ And like that, we found our target node, D, which requires a total distance of 6
 With that logic in mind, we can construct the following code:
 ```c++
 int dijkstra(Vertex *head, int key) {
+    //priority queue using min-heap
     std::priority_queue<std::pair<int, Vertex*>, std::vector<std::pair<int, Vertex*> >, std::greater<std::pair<int, Vertex*> > > q;
     q.push(std::make_pair(0, head));
     std::unordered_map<Vertex*, int> weights;
@@ -385,9 +386,11 @@ int dijkstra(Vertex *head, int key) {
         int weight = q.top().first;
         if (current->val() == key) return weight;
         q.pop();
+        //if new weight is worse than the previous one then break
         if (weight > weights[current]) break;
         weights[current] = weight;
         int l = current->len();
+        //go through all of the node's neighbours and if the new weight is better then push them to the queue
         for (int i = 0; i < l; i++) {
             Vertex* temp = current->adj(i);
             int w = current->weight(i);
@@ -439,16 +442,20 @@ And it will check again, but this time, there are no changes in the graph which 
 With that algorithm in mind, we can create the following code:
 ```c++
 std::vector<int> bellman_ford(std::vector<Vertex*>& arr, int start) {
+    //default weight set to the maximum integer an int can hold
     const int defaultWeight = std::numeric_limits<int>::max();
     std::vector<int> total(arr.size(), defaultWeight);
     total[start] = 0;
     int counter = 0;
     bool changed = true;
+    //continues loop while there is a change in values and it has not gone over V-1 repetitions
     while (changed && counter < arr.size()-1) {
         changed = false;
         for (int i = 0; i<arr.size(); i++) {
+            //if there is no path currently then continue
             if (total[i] == defaultWeight) continue;
             int l = arr[i]->len();
+            //go through all of the node's neighbours and recalculate optimal routes
             for (int j = 0; j<l; j++) {
                 int v = arr[i]->adj(j)->val();
                 if (total[i] + arr[i]->weight(j) < total[v]) {
@@ -467,6 +474,7 @@ In this case, I ended up using the vector of vertices as it allows me to easily 
 #### Negative Cycle Detection
 The time complexity of Bellman-Ford is obviously worse than that of Dijkstra, however, its main strength lies in its ability to detect negative cycles. Using the Bellman-Ford algorithm, you could detect negative cycles by slightly modifying the previous code:
 ```c++
+//same as before but instead of stopping the while loop at V-1 it stops at V and returns the changed varaible
 bool has_negative_cycle(std::vector<Vertex*>& arr, int start) {
     const int defaultWeight = std::numeric_limits<int>::max();
     std::vector<int> total(arr.size(), defaultWeight);
@@ -502,10 +510,11 @@ The code for such a simple algorithm would just look like this:
 ```c++
 std::vector<std::vector<int> > floyd_warshall(std::vector<std::vector<int> >& dists) {
     const int defaultMax = std::numeric_limits<int>::max();
-
+    //first loop is of the intermediate node, then the source node and then the target node
     for (int k = 0; k<dists.size(); k++) {
         for (int i = 0; i<dists.size(); i++) {
             for (int j = 0; j<dists.size(); j++) {
+                //if the new distance is better then update the optimal one
                 if (dists[i][k] != defaultMax && dists[k][j] != defaultMax && dists[i][j] > dists[i][k] + dists[k][j]) {
                     dists[i][j] = dists[i][k] + dists[k][j];
                 }
@@ -528,13 +537,16 @@ The code would look like this:
 ```c++
 //helper function
 void dfs_topo(Vertex* v, std::stack<Vertex*>& s, std::unordered_map<Vertex*, bool>& visited) {
+    //mark current node as visited
     visited[v] = true;
     int len = v->len();
+    //call DFS recursively for all unvisited neighbours
     for (int i = 0; i<len; i++) {
         if (visited.find(v->adj(i)) == visited.end()) {
             dfs_topo(v->adj(i), s, visited);
         }
     }
+    //add node to the result
     s.push(v);
 }
 
@@ -542,11 +554,13 @@ void dfs_topo(Vertex* v, std::stack<Vertex*>& s, std::unordered_map<Vertex*, boo
 std::vector<Vertex*> dfs_topological(std::vector<Vertex*>& g) {
     std::stack<Vertex*> s;
     std::unordered_map<Vertex*, bool> visited;
+    //perform DFS on all nodes which have not been visited before
     for (int i = 0; i<g.size(); i++) {
         if (visited.find(g[i]) == visited.end()) {
             dfs_topo(g[i], s, visited);
         }
     }
+    //reverse the result and print it
     std::vector<Vertex*> r;
     for (int i = 0; i<g.size(); i++) {
         r.push_back(s.top());
@@ -563,6 +577,7 @@ The code would therefore be:
 ```c++
 std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
     std::unordered_map<Vertex*, int> in;
+    //set the in-defree of each node by going through each node's neighbours
     for (int i = 0; i<g.size(); i++) {
         int l = g[i]->len();
         for (int j = 0; j<l; j++) {
@@ -570,13 +585,15 @@ std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
             else in[g[i]->adj(j)]++;
         }
     }
-    
+
+    //push to the queue nodes with in-degree of 0
     std::queue<Vertex*> q;
     for (int i = 0; i<g.size(); i++) {
         if (in.find(g[i]) == in.end()) q.push(g[i]);
     }
 
     std::vector<Vertex*> r;
+    //while queue is not empty decrease the in-degree of front node's neighbours and add it to the result
     while (!q.empty()) {
         Vertex* v = q.front();
         q.pop();
@@ -586,6 +603,7 @@ std::vector<Vertex*> kahn(std::vector<Vertex*>& g) {
             if ((--in[v->adj(i)]) == 0) q.push(v->adj(i));
         }
     }
+    //if the result does not include all nodes then the graph was not a DAG
     if (r.size() != g.size()) {
         return {};
     }
@@ -606,6 +624,7 @@ Kruskal is a <strong>greedy algorithm</strong> which finds a minimum spanning tr
 A Disjoint Set Union(DSU) works by keeping track of a <strong>representative</strong> for each separate tree formed. At the start, all nodes are added with themselves being the representatives of their own one-node tree. Then, the DSU contains two methods, <strong>union-find</strong>. The method `find`, just <strong>returns the representative of the given node</strong>. It does so <strong>recursively</strong>, as the representative of its parent node might be a different node. It stops the recursion when the representative of the node is the node itself. However, to keep the `find` method fast, each time the method is called, it does not just return the final representative of the tree but also <strong>changes all the representatives</strong> along the way to the final representative therefore shortening the path to the tree's representative. This type of find takes advantage of a concept called <strong>Path Compression</strong>. Therefore, its code would look like this:
 ```c++
 int find(int i) {
+    //if this is not the representative then recursively find new representative and set the current one equal to the final one
     if (parents[i] != i) parents[i] = find(parents[i]);
     return parents[i];
 }
@@ -613,9 +632,12 @@ int find(int i) {
 The next method is `union`. It has 2 nodes as parameters and its objective is to <strong>merge the two different trees</strong> in which both nodes are part. To do that it calls the `find` method of both nodes and if they are not part of the same tree then the representative's representative of the first tree is set to be equal to the representative of the second tree. So the code for `union` would be:
 ```c++
 void unite(int i, int j) {
+    //find both representatives
     int first = find(i);
     int second = find(j);
+    //if they are together then do nothing
     if (i == j) return;
+    //put them together choosing node j's representative as the final representative
     parents[first] = second;
 }
 ```
@@ -625,11 +647,14 @@ void unite(int i, int j) {
     int first = find(i);
     int second = find(j);
     if (i == j) return;
+    //if the first tree has a greater rank then choose its representative for the merge
     if (ranks[first] > ranks[second]) {
         parents[second] = first;
     }
     else {
+        //the second tree's representative is the new one
         parents[first] = second;
+        //if they are the same rank then increase the rank of the second one
         if (ranks[first] == ranks[second]) {
             ranks[second]++;
         }
@@ -645,6 +670,7 @@ class DSU {
         std::vector<int> parents;
         std::vector<int> ranks;
     public:
+        //constructor setting for each node the rank to 0 and the representative to itself
         DSU(std::vector<int>& p) {
             parents.resize(p.size());
             ranks.resize(p.size());
@@ -679,12 +705,15 @@ class DSU {
 Having created the DSU class and having an idea of how Kruskal's algorithm works, we can now write the code for it:
 ```c++
 int kruskal(std::vector<edge>& edges) {
+    //if there are no edges then there is no MST
     if (edges.size() == 0) return 0;
-    
+
+    //sort the edges based on weight in ascending order
     std::sort(edges.begin(), edges.end(), [](const auto &a, const auto &b) {
         return a.w < b.w;
     });
 
+    //creating required parameters for DSU
     std::vector<int> f;
     for (int i = 0; i<edges.size(); i++) {
         f.push_back(i);
@@ -692,6 +721,7 @@ int kruskal(std::vector<edge>& edges) {
     DSU dsu(f);
     
     int total = 0;
+    //pick the next smallest edge each time without creating any loops by using the DSU to check for them
     for (edge e: edges) {
         if (dsu.find(e.a) != dsu.find(e.b)) {
             dsu.unite(e.a, e.b);
@@ -710,8 +740,10 @@ int prim(std::vector<Vertex*> g) {
     int total = 0;
     int visitedAmount = 0;
     std::vector<bool> visited(g.size(), false);
+    //priority queue using min-heap
     std::priority_queue<std::pair<int, Vertex*>, std::vector<std::pair<int, Vertex*> >, std::greater<std::pair<int, Vertex*> > > pq;
     pq.emplace(0, g[0]);
+    //pick each time the next lightest available edge, go through all neighbouring edges and add them to the priority queue when leading to unvisited nodes
     while (visitedAmount < g.size()) {
         Vertex* current = pq.top().second;
         visited[current->val()] = true;
@@ -753,29 +785,39 @@ This algorithm can be summarised as follows:
 With those steps in mind, we can now construct the required code:
 ```c++
 void dfs_t(Vertex* head, std::unordered_map<Vertex*, int>& lows, std::unordered_map<Vertex*, int>& ids, int& amount, std::unordered_map<Vertex*, bool>& onStack, std::stack<Vertex*>& s, int& id) {
+    //add node to the stack of being explored
     s.push(head);
     onStack[head] = true;
+    //give it an id and set its low-link value to its id
     lows[head] = id;
     ids[head] = id++;
+    
     int len = head->len();
     for (int i = 0; i<len; i++) {
         Vertex* temp = head->adj(i);
+        //if the neighbour is univisted, recursively call DFS
         if (ids.find(temp) == ids.end()) dfs_t(temp, lows, ids, amount, onStack, s, id);
+        //if the node is still on the stack and its low-link value is greater than that of its neighbour then update the low-link of current node
         if (onStack[temp] && (lows.find(head) == lows.end() || lows[head] > lows[temp])) lows[head] = lows[temp];
     }
 
+    //if the low-link and id are the same then there is a strongly connected component
     if (ids[head] == lows[head]) {
+        //start emptying the stack until the top node is the current one
+        //in this loop you could also save in a vector of vectors all of the strongly connected components
         for (Vertex* node = s.top(); true; node = s.top()) {
             s.pop();
             onStack[node] = false;
             lows[node] = lows[head];
             if (node == head) break;
         }
+        //increase the amount of strongly connected components
         amount++;
     }
 }
 
 int tarjan(std::vector<Vertex*>& g) {
+    //setting up all of the parameters for the DFS calls
     int n = g.size();
     int amount = 0;
     int id = 0;
@@ -783,6 +825,7 @@ int tarjan(std::vector<Vertex*>& g) {
     std::unordered_map<Vertex*, int> lows;
     std::unordered_map<Vertex*, bool> onStack;
     std::stack<Vertex*> s;
+    //call DFS on all previously univisted nodes
     for (int i = 0; i<n; i++) {
         if (ids.find(g[i]) == ids.end()) dfs_t(g[i], lows, ids, amount, onStack, s, id);
     }
