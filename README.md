@@ -33,29 +33,35 @@ I am going to be using a <strong>class</strong> to represent a single vertex thr
 ```c++
 class Vertex {
     private:
-        int value;
-        std::vector<std::pair<Vertex*, int> > nextVertex;
+        int value; // value of node
+        std::vector<std::pair<Vertex*, int> > nextVertex; //pair of adjacent node and weight of edge connection
     public:
+        //void function used to set the value of the node to an integer
         void val(int v) {
             value = v;
         }
-        
+
+        //function used to return the value of the node
         int val() {
             return value;
         }
 
+        //void function used for adding a relationship between 2 nodes. The node is added as a neighbour with a weight of w(directed graph)
         void add(Vertex* n, int w) {
             nextVertex.emplace_back(n, w);
         }
 
+        //gets the ith neighbour
         Vertex* adj(int i) {
             return nextVertex[i].first;
         }
 
+        //gets the weight to get to the ith neighbour
         int weight(int i) {
             return nextVertex[i].second;
         }
 
+        //returns total number of neighbours
         int len() {
             return nextVertex.size();
         }
@@ -67,11 +73,16 @@ An adjacency matrix is basically a <strong>2D board</strong> of size VxV, where 
 As I am using the vector of vertices, I created a function which converts such a structure to an adjacency matrix.
 ```c++
 std::vector<std::vector<int> > get_adjacency_matrix(std::vector<Vertex*> g) {
+    //temp represents a single row
     std::vector<int> temp(g.size(), std::numeric_limits<int>::max());
+    //r is the final result
     std::vector<std::vector<int> > r(g.size(), temp);
     for (int i = 0; i<g.size(); i++) {
+        //distance from node i to itself is 0
         r[i][i] = 0;
+        //loop through all neighbours of i
         for (int j = 0; j<g[i]->len(); j++) {
+            //add an edge in the adjacency matrix
             r[i][g[i]->adj(j)->val()] = g[i]->weight(j);
         }
     }
@@ -85,7 +96,9 @@ While the adjacency matrix produced is much faster than any other structure whic
 An adjacency list consists of a <strong>list of vectors</strong> where each <em>ith</em> place in the list represents one vertex. In each slot, there is a vector which holds all of the neighbours by using the `std::pair` and holding the index of the node and the weight required to reach it. To transform from a vector of vertices to an adjacency list you could use the following code:
 ```c++
 std::vector<std::vector<std::pair<int, int> > > get_adjacency_list(std::vector<Vertex*> g) {
+    //r represents the final result
     std::vector<std::vector<std::pair<int, int> > > r;
+    //loop through all nodes and their neighbours and add the approriate connections
     for (int i = 0; i<g.size(); i++) {
         for (int j = 0; j<g[i]->len(); j++) {
             r[i].emplace_back(g[i]->adj(j)->val(), g[i]->weight(j));
@@ -100,12 +113,15 @@ This method of storing a graph is quite efficient and actually pretty similar to
 ### Edge List
 Finally, another popular method of storing graphs is the edge list. Basically, with this method you store in a <strong>list all of the edges</strong> present in the graph without caring about the nodes. Each edge in this list is represented by three values, two of them are the values of the two vertices connected and the final one is the weight of the edge. To accomplish this I just created another <strong>custom struct</strong>. The code for the conversion between the vector of vertices and the edge list is:
 ```c++
+//a is the first node, b is the second node and w is the weight
 struct edge {
     int a, b, w;
 };
 
 std::vector<edge> get_edge_list(std::vector<Vertex*> g) {
+    //final result is saved in r
     std::vector<edge> r;
+    //loop through all of the nodes and their neighbours and add an edge to the edgelist
     for (int i = 0; i<g.size(); i++) {
         for (int j = 0; j<g[i]->len(); j++) {
             edge e;
@@ -171,20 +187,26 @@ Vertex* bfs(Vertex *head, int key) {
     std::queue<Vertex*> q;
     q.push(head);
     std::unordered_map<Vertex*, bool> visited;
+    //while the queue is not empty
     while (!q.empty()) {
         Vertex* current = q.front();
+        //return the current node if value is found
         if (current->val() == key) return current;
         q.pop();
+        //if current node has been visited then ignore it
         if (visited[current]) continue;
+        //mark as visited
         visited[current] = true;
         int l = current->len();
         for (int i = 0; i < l; i++) {
             Vertex* temp = current->adj(i);
+            //if we haven't visited the neighbour, push them to the queue
             if (visited.find(temp) == visited.end()) {
                 q.push(temp);
             }
         }
     }
+    //return nullptr as there is no node of value key
     return nullptr;
 }
 
@@ -227,6 +249,7 @@ B --> C
 Finally, node 3 will be checked and the program will be terminated.<br>
 Because the only change made is for the queue to be swapped with a stack, we can simply take the previous BFS code and change it up a bit like so:
 ```c++
+//same exact code as BFS but substituted the queue with a stack
 Vertex* dfs(Vertex *head, int key) {
     std::stack<Vertex*> q;
     q.push(head);
@@ -254,36 +277,31 @@ Once again, the `key` represents the value that we are looking for and the `head
 The two programs look almost identical and have the same time and space complexities, so what is the point in using one over the other? It's better to use BFS when the answer you are looking for is closer to the source node, whereas it is more optimal to use DFS when the answer lies somewhere quite far away from the source node. However, even then, most  people would rather go for DFS as its recursive solution is much easier to implement:
 ```c++
 Vertex* dfs_recursive(Vertex *head, int key, std::unordered_map<Vertex*, bool>& visited) {
+    //2 base cases, when we found the key we return the current node and when we reach an already visited node we return nullptr
     if (head->val() == key) return head;
     if (visited[head]) return nullptr;
+    //mark as visited
     visited[head] = true;
     int l = head->len();
     for (int i = 0; i < l; i++) {
         Vertex* temp = head->adj(i);
+        //if the neighbour is not visited then call DFS recursively on it
         if (visited.find(temp) == visited.end()) {
             Vertex* r = dfs_recursive(temp, key, visited);
+            //if there was a result then return the value
             if (r != nullptr) return r;
         }
     }
+    //last base case when nothing is found we return nullptr
     return nullptr;
 }
 ```
 Again, the way it works and the input it receives is the same as the iterative DFS, however, it has an extra parameter which is the visited map passed on as a reference. Its space and time complexity are the same, however, its space complexity does not come from the stack structure, but rather from the recursive calls. Of course, we can overload the function to exclude the third parameter from the first function call like so:
 ```c++
+//overloaded to use less parameters when called
 Vertex* dfs_recursive(Vertex *head, int key) {
     std::unordered_map<Vertex*, bool> visited;
-    if (head->val() == key) return head;
-    if (visited[head]) return nullptr;
-    visited[head] = true;
-    int l = head->len();
-    for (int i = 0; i < l; i++) {
-        Vertex* temp = head->adj(i);
-        if (visited.find(temp) == visited.end()) {
-            Vertex* r = dfs_recursive(temp, key, visited);
-            if (r != nullptr) return r;
-        }
-    }
-    return nullptr;
+    return dfs_recursive(head, key, visited);
 }
 ```
 
