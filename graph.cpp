@@ -12,8 +12,8 @@
 #include "Strongly Connected Components/tarjan.hpp"
 #include "Topological Sorting/dfs_topological.hpp"
 #include "Topological Sorting/kahn.hpp"
-#include "Transforming Graphs/to_adjacency_matrix.hpp"
-#include "Transforming Graphs/to_edge_list.hpp"
+#include "Transforming Graphs/get_adjacency_matrix.hpp"
+#include "Transforming Graphs/get_edge_list.hpp"
 
 int main() {
     std::vector<Vertex*> g; // Normal

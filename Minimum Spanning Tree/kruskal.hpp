@@ -1,6 +1,6 @@
 #include "../vertex.hpp"
 #include "../DSU/dsu.hpp"
-#include "../Transforming Graphs/to_edge_list.hpp"
+#include "../Transforming Graphs/get_edge_list.hpp"
 #include <algorithm>
 
 int kruskal(std::vector<edge>& edges) {
