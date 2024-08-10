@@ -2,6 +2,9 @@
 Explanation and implementation of a bunch of different graph-related algorithms.
 
 ## Table of Contents
+* [Introduction](#introduction)
+    - [What are Graphs](#what-are-graphs)
+    - [About this Repository](#about-this-repository)
 * [Graph Representation](#graph-representation)
     - [Vector of Vertices](#vector-of-vertices)
     - [Adjacency Matrix](#adjacency-matrix)
@@ -23,9 +26,19 @@ Explanation and implementation of a bunch of different graph-related algorithms.
 * [Strongly Connected Components](#strongly-connected-components)
     - [Tarjan's Algorithm](#tarjans-algorithm)
 
+## Introduction
+### What are Graphs
+A graph is a structure made up of <strong>vertices and edges</strong>. Vertices, also known as nodes, are connected through the edges. Edges can carry <strong>weights</strong> which are representeed by some number, representing some sort of consequence to get from node A to node B. Graphs can be used to solve a variety of different problems. They are even used in neural networks.
+
+### About this Repository
+In this repository I provide an explanation and the code for each graph algorithm. The <em>graph.cpp</em> showcases how they should be used. I used C++17 to compile it. Specifically you should run:
+```bash
+$ g++ graph.cpp -std=c++17
+```
+Also versions that come after C++17 should work. So you could compile with C++20 instead of C++17. It should also work just fine with C++14.
 
 ## Graph Representation
-A graph is a structure made up of <strong>vertices and edges</strong>. Vertices, also known as nodes, are connected through the edges. There are many ways to represent a graph in programming, and choosing the right one depends on your purpose. In the code of this repository, I will be using a vector composed of the nodes of the graph, where each node will be represented using a class. However, there are also other ways to accomplish the same thing, each with its own advantages and disadvantages.
+There are many ways to represent a graph in programming, and choosing the right one depends on your purpose. In the code of this repository, I will usually be using a vector composed of the nodes of the graph, where each node will be represented using a class. However, there are also other ways to accomplish the same thing, each with its own advantages and disadvantages.
 
 ### Vector of Vertices
 I am going to be using a <strong>class</strong> to represent a single vertex throughout most of this repository and in some cases put each of the nodes in a vector. Basically, I created a class to act as a node which holds its <strong>value</strong>, a <strong>pointer</strong> to each neighbouring node as well as the <strong>weight</strong> of the edge connecting them and a way to add edges from one node to another. The code for the node is the following:
