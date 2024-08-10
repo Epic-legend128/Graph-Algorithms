@@ -35,7 +35,9 @@ In this repository I provide an explanation and the code for each graph algorith
 ```bash
 $ g++ graph.cpp -std=c++17
 ```
-Also versions that come after C++17 should work. So you could compile with C++20 instead of C++17. It should also work just fine with C++14.
+Also versions that come after C++17 should work. So you could compile with C++20 instead of C++17. It should also work just fine with C++14.<br>
+
+I already had studied these algorithms beforehand so I just used [GeekForGeeks](https://www.geeksforgeeks.org) as a refresh while writing this repository. Also I found [this video](https://www.youtube.com/watch?v=wUgWX0nc4NY) very useful when it came to explaining [Tarjan's Algorithm](#tarjans-algorithm).
 
 ## Graph Representation
 There are many ways to represent a graph in programming, and choosing the right one depends on your purpose. In the code of this repository, I will usually be using a vector composed of the nodes of the graph, where each node will be represented using a class. However, there are also other ways to accomplish the same thing, each with its own advantages and disadvantages.
